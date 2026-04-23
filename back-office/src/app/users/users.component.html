@@ -1,0 +1,25 @@
+<div style="margin-bottom: 20px;">
+  <button routerLink="/dashboard" style="background-color: #718096;">&larr; Retour au Dashboard</button>
+</div>
+
+<h2>Gestion des Utilisateurs</h2>
+<table>
+  <thead>
+    <tr>
+      <th>ID User</th>
+      <th>Identifiant</th>
+      <th>Rôle</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (user of users(); track user.id_user) {
+      <tr>
+        <td>{{ user.id_user }}</td>
+        <td>{{ user.identifiant }}</td>
+        <td>{{ user.role }}</td>
+        <td><button>Éditer</button> <button>Supprimer</button></td>
+      </tr>
+    }
+  </tbody>
+</table>

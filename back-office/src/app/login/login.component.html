@@ -1,0 +1,14 @@
+<div class="login-container">
+  <h2>Connexion Back-Office (Admin)</h2>
+  <form (ngSubmit)="login()">
+    <div>
+      <label for="identifiant">Identifiant :</label>
+      <input id="identifiant" type="text" [(ngModel)]="identifiant" name="identifiant" required>
+    </div>
+    <div>
+      <label for="password">Mot de passe :</label>
+      <input id="password" type="password" [(ngModel)]="password" name="password" required>
+    </div>
+    <button type="submit">Se connecter</button>
+  </form>
+</div>

@@ -1,0 +1,48 @@
+<div style="margin-bottom: 20px;">
+  <button routerLink="/dashboard" style="background-color: #718096;">&larr; Retour au Dashboard</button>
+</div>
+
+<h2>Gestion des Camions</h2>
+
+<button (click)="isAdding.set(true)" style="margin-bottom: 15px;">+ Ajouter un camion</button>
+
+@if (isAdding()) {
+  <div style="background: #fff; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+    <h3>Nouveau Camion</h3>
+    <form (ngSubmit)="ajouter()" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end;">
+      <div style="flex: 1; min-width: 120px;"><label>Modèle ID</label><input type="number" min="0" [(ngModel)]="nouveauCamion().id_modele" name="id_modele" style="margin-bottom: 0;"></div>
+      <div style="flex: 1; min-width: 120px;"><label>Plaque</label><input type="text" [(ngModel)]="nouveauCamion().plaque_immatriculation" name="plaque" style="margin-bottom: 0;"></div>
+      <div style="flex: 1; min-width: 120px;"><label>Statut</label><input type="text" [(ngModel)]="nouveauCamion().statut" name="statut" style="margin-bottom: 0;"></div>
+      <div style="flex: 1; min-width: 120px;"><label>Essence (L)</label><input type="number" min="0" [(ngModel)]="nouveauCamion().quantite_essence" name="essence" style="margin-bottom: 0;"></div>
+      <div style="display: flex; gap: 10px;">
+        <button type="submit" style="width: auto; margin-top: 0;">Enregistrer</button>
+        <button type="button" (click)="isAdding.set(false)" style="background: #e2e8f0; color: #4a5568; width: auto; margin-top: 0;">Annuler</button>
+      </div>
+    </form>
+  </div>
+}
+
+<table>
+  <thead>
+    <tr>
+      <th>ID Camion</th>
+      <th>ID Modèle</th>
+      <th>Plaque d'immatriculation</th>
+      <th>Statut</th>
+      <th>Essence (L)</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (camion of camions(); track camion.id_camion) {
+      <tr>
+        <td>{{ camion.id_camion }}</td>
+        <td>{{ camion.id_modele }}</td>
+        <td>{{ camion.plaque_immatriculation }}</td>
+        <td>{{ camion.statut }}</td>
+        <td>{{ camion.quantite_essence }}</td>
+        <td><button>Éditer</button> <button>Supprimer</button></td>
+      </tr>
+    }
+  </tbody>
+</table>

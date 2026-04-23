@@ -1,0 +1,37 @@
+<div style="margin-bottom: 20px;">
+  <button routerLink="/dashboard" style="background-color: #718096;">&larr; Retour au Dashboard</button>
+</div>
+
+<h2>Gestion des Commandes</h2>
+<table>
+  <thead>
+    <tr>
+      <th>ID Commande</th>
+      <th>ID Client</th>
+      <th>Tournée</th>
+      <th>Adresse</th>
+      <th>Date voulue</th>
+      <th>Plage horaire</th>
+      <th>Quantité</th>
+      <th>Prix</th>
+      <th>Statut</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (commande of commandes(); track commande.id_commande) {
+      <tr>
+        <td>{{ commande.id_commande }}</td>
+        <td>{{ commande.id_client }}</td>
+        <td>{{ commande.id_tournee || 'N/A' }}</td>
+        <td>{{ commande.adresse_texte }}</td>
+        <td>{{ commande.date_voulu }}</td>
+        <td>{{ commande.plage_horaire }}</td>
+        <td>{{ commande.quantite }}</td>
+        <td>{{ commande.prix }} €</td>
+        <td>{{ commande.statut }}</td>
+        <td><button>Éditer</button> <button>Supprimer</button></td>
+      </tr>
+    }
+  </tbody>
+</table>
