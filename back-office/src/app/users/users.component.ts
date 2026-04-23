@@ -36,7 +36,7 @@ export class UsersComponent {
   usersFiltres = computed(() => {
     const term = this.searchTerm().toLowerCase();
     let result = this.users().filter(u => 
-      u.identifiant.toLowerCase().includes(term) ||
+      u.identifier.toLowerCase().includes(term) ||
       u.role.toLowerCase().includes(term)
     );
 

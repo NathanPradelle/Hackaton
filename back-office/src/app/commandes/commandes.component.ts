@@ -40,7 +40,7 @@ export class CommandesComponent implements OnInit {
   
   usersMap = computed(() => {
     const map = new Map<number, string>();
-    this.userService.users().forEach(u => map.set(u.id_user, u.identifiant));
+    this.userService.users().forEach(u => map.set(u.id, u.identifier));
     return map;
   });
 
