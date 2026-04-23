@@ -19,7 +19,7 @@ export class CamionService {
     );
   }
 
-  ajouterCamion(camion: Omit<Camion, 'id_camion'>): Observable<Camion> {
+  ajouterCamion(camion: Omit<Camion, 'id'>): Observable<Camion> {
     return this.http.post<Camion>(this.apiUrl, camion).pipe(
       tap((newCam: Camion) => {
         this.camionsSignal.update((camions: Camion[]) => [...camions, newCam]);
@@ -28,9 +28,9 @@ export class CamionService {
   }
 
   editerCamion(camionModifie: Camion): Observable<Camion> {
-    return this.http.put<Camion>(`${this.apiUrl}/${camionModifie.id_camion}`, camionModifie).pipe(
+    return this.http.put<Camion>(`${this.apiUrl}/${camionModifie.id}`, camionModifie).pipe(
       tap((updatedCam: Camion) => {
-        this.camionsSignal.update((camions: Camion[]) => camions.map((c: Camion) => c.id_camion === updatedCam.id_camion ? updatedCam : c));
+        this.camionsSignal.update((camions: Camion[]) => camions.map((c: Camion) => c.id === updatedCam.id ? updatedCam : c));
       })
     );
   }
@@ -38,7 +38,7 @@ export class CamionService {
   supprimerCamion(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
       tap(() => {
-        this.camionsSignal.update((camions: Camion[]) => camions.filter((c: Camion) => c.id_camion !== id));
+        this.camionsSignal.update((camions: Camion[]) => camions.filter((c: Camion) => c.id !== id));
       })
     );
   }

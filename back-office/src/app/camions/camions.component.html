@@ -14,28 +14,28 @@
 @if (isAdding()) {
   <div class="modal-overlay" (click)="isAdding.set(false)">
     <div class="modal-content" (click)="$event.stopPropagation()">
-      <h3 style="margin-top: 0;">{{ nouveauCamion().id_camion ? 'Modifier le Camion' : 'Nouveau Camion' }}</h3>
+      <h3 style="margin-top: 0;">{{ nouveauCamion().id ? 'Modifier le Camion' : 'Nouveau Camion' }}</h3>
       <form (ngSubmit)="ajouter()" #camionForm="ngForm" style="display: flex; flex-direction: column;">
         <div>
           <label>Modèle</label>
-          <select [(ngModel)]="nouveauCamion().id_modele" name="id_modele" required>
+          <select [(ngModel)]="nouveauCamion().modelId" name="modelId" required>
             <option [ngValue]="undefined" disabled selected>Choisir un modèle</option>
-            @for(modele of modeles(); track modele.id_modele) {
-              <option [value]="modele.id_modele">{{ modele.marque }} {{ modele.nom_modele }}</option>
+            @for(modele of modeles(); track modele.id) {
+              <option [value]="modele.id">{{ modele.marque }} {{ modele.nomModele }}</option>
             }
           </select>
         </div>
-        <div><label>Plaque</label><input type="text" [(ngModel)]="nouveauCamion().plaque_immatriculation" name="plaque" required></div>
+        <div><label>Plaque</label><input type="text" [(ngModel)]="nouveauCamion().licensePlate" name="plaque" required></div>
         <div>
           <label>Statut</label>
-          <select [(ngModel)]="nouveauCamion().statut" name="statut" required>
+          <select [(ngModel)]="nouveauCamion().status" name="statut" required>
             <option [ngValue]="undefined" disabled selected>Choisir un statut</option>
             <option value="Disponible">Disponible</option>
             <option value="En tournée">En tournée</option>
             <option value="En maintenance">En maintenance</option>
           </select>
         </div>
-        <div><label>Essence (L)</label><input type="number" min="0" [(ngModel)]="nouveauCamion().quantite_essence" name="essence" required></div>
+        <div><label>Essence (L)</label><input type="number" min="0" [(ngModel)]="nouveauCamion().currentFuelLevel" name="essence" required></div>
         <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
           <button type="button" (click)="isAdding.set(false)" style="background: #e2e8f0; color: #4a5568; width: auto; margin-top: 0;">Annuler</button>
           <button type="submit" [disabled]="!camionForm.valid" [style.opacity]="camionForm.valid ? '1' : '0.5'" style="width: auto; margin-top: 0;">Enregistrer</button>
@@ -48,28 +48,28 @@
 <table>
   <thead>
     <tr>
-      <th class="sortable" (click)="sortBy('id_camion')">ID Camion {{ sortColumn() === 'id_camion' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
-      <th class="sortable" (click)="sortBy('id_modele')">ID Modèle {{ sortColumn() === 'id_modele' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
-      <th class="sortable" (click)="sortBy('plaque_immatriculation')">Plaque {{ sortColumn() === 'plaque_immatriculation' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
-      <th class="sortable" (click)="sortBy('statut')">Statut {{ sortColumn() === 'statut' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
-      <th class="sortable" (click)="sortBy('quantite_essence')">Essence (L) {{ sortColumn() === 'quantite_essence' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
+      <th class="sortable" (click)="sortBy('id')">ID Camion {{ sortColumn() === 'id' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
+      <th class="sortable" (click)="sortBy('modelId')">ID Modèle {{ sortColumn() === 'modelId' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
+      <th class="sortable" (click)="sortBy('licensePlate')">Plaque {{ sortColumn() === 'licensePlate' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
+      <th class="sortable" (click)="sortBy('status')">Statut {{ sortColumn() === 'status' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
+      <th class="sortable" (click)="sortBy('currentFuelLevel')">Essence (L) {{ sortColumn() === 'currentFuelLevel' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
       <th>Actions</th>
     </tr>
   </thead>
   <tbody>
-    @for (camion of camionsFiltres(); track camion.id_camion) {
+    @for (camion of camionsFiltres(); track camion.id) {
       <tr>
-        <td>{{ camion.id_camion }}</td>
-        <td>{{ modelesMap().get(camion.id_modele) || camion.id_modele }}</td>
-        <td>{{ camion.plaque_immatriculation }}</td>
-        <td>{{ camion.statut }}</td>
-        <td>{{ camion.quantite_essence }}</td>
+        <td>{{ camion.id }}</td>
+        <td>{{ modelesMap().get(camion.modelId) || camion.modelId }}</td>
+        <td>{{ camion.licensePlate }}</td>
+        <td>{{ camion.status }}</td>
+        <td>{{ camion.currentFuelLevel }}</td>
         <td>
           <div class="action-buttons">
             <button class="icon-btn edit" title="Éditer" (click)="editer(camion)">
               <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
             </button>
-            <button class="icon-btn delete" title="Supprimer" (click)="supprimer(camion.id_camion)">
+            <button class="icon-btn delete" title="Supprimer" (click)="supprimer(camion.id)">
               <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
             </button>
           </div>

@@ -10,11 +10,11 @@ import { ModeleService } from '../shared/modele.service';
 import { Modele } from '../shared/modele';
 
 export interface Camion {
-  id_camion: number;
-  id_modele: number;
-  statut: string;
-  plaque_immatriculation: string;
-  quantite_essence: number;
+  id: number;
+  modelId: number;
+  status: string;
+  licensePlate: string;
+  currentFuelLevel: number;
 }
 
 @Component({
@@ -31,7 +31,8 @@ export class CamionsComponent implements OnInit {
   modeles = this.modeleService.modeles;
   modelesMap = computed(() => {
     const map = new Map<number, string>();
-    this.modeles().forEach((m: Modele) => map.set(m.id_modele, `${m.marque} ${m.nom_modele}`));
+    // J'assume que l'entité Modele a les propriétés: id, marque, nomModele
+    this.modeles().forEach((m: Modele) => map.set(m.id, `${m.marque} ${m.nomModele}`));
     return map;
   });
 
@@ -42,8 +43,8 @@ export class CamionsComponent implements OnInit {
   camionsFiltres = computed(() => {
     const term = this.searchTerm().toLowerCase();
     let result = this.camions().filter((c: Camion) => 
-      c.plaque_immatriculation.toLowerCase().includes(term) ||
-      c.statut.toLowerCase().includes(term)
+      c.licensePlate?.toLowerCase().includes(term) ||
+      c.status.toLowerCase().includes(term)
     );
 
     const col = this.sortColumn();
@@ -86,7 +87,7 @@ export class CamionsComponent implements OnInit {
 
   ajouter() {
     const camionData = this.nouveauCamion();
-    if (!camionData.plaque_immatriculation || !camionData.statut || !camionData.id_modele) {
+    if (!camionData.licensePlate || !camionData.status || !camionData.modelId) {
       this.toastService.show('Veuillez remplir tous les champs obligatoires.', 'error');
       return;
     }
@@ -100,13 +101,13 @@ export class CamionsComponent implements OnInit {
       error: (err: any) => this.toastService.show(`Erreur: ${err.message || 'Le serveur a rencontré un problème.'}`, 'error')
     };
 
-    if (camionData.id_camion) {
+    if (camionData.id) {
       // Mode édition
       this.camionService.editerCamion(camionData as Camion).subscribe(onSave);
     } else {
       // Mode ajout : on s'assure de ne pas envoyer d'ID au backend
-      const { id_camion, ...newCamion } = camionData;
-      this.camionService.ajouterCamion(newCamion as Omit<Camion, 'id_camion'>).subscribe(onSave);
+      const { id, ...newCamion } = camionData;
+      this.camionService.ajouterCamion(newCamion as Omit<Camion, 'id'>).subscribe(onSave);
     }
   }
 

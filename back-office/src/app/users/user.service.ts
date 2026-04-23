@@ -1,43 +1,42 @@
 import { Injectable, signal, inject } from '@angular/core';
-import { User } from './users.component';
-// import { HttpClient } from '@angular/common/http';
-// import { environment } from '../../environments/environment';
+import { User } from '../models/user.model';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
+  // Mock data aligned with the 'User' interface and backend entity
   private usersSignal = signal<User[]>([
-    { id_user: 1, identifiant: 'admin_principal', role: 'ADMIN' },
-    { id_user: 2, identifiant: 'jean_chauffeur', role: 'CHAUFFEUR' },
-    { id_user: 3, identifiant: 'entreprise_dupont', role: 'CLIENT' },
+    { id: 1, username: 'admin_principal', role: 'ADMIN' },
+    { id: 2, username: 'jean_chauffeur', role: 'DRIVER' }, // Role updated to match backend 'Driver' entity
+    { id: 3, username: 'entreprise_dupont', role: 'CLIENT' },
   ]);
 
   readonly users = this.usersSignal.asReadonly();
 
   // private http = inject(HttpClient);
-  // private apiUrl = `${environment.apiUrl}/users`;
+  // private apiUrl = `${environment.apiUrl}/users`; // API route is conventional
 
-  /* chargerUsers() { ... } */
+  /* loadUsers() { ... } */
 
-  ajouterUser(user: User) {
+  addUser(user: User) {
     // this.http.post<User>(this.apiUrl, user).subscribe(newUser => {
     //   this.usersSignal.update(users => [...users, newUser]);
     // });
-    this.usersSignal.update(users => [...users, user]);
+    this.usersSignal.update(users => [...users, { ...user, id: Math.floor(Math.random() * 1000) }]); // Mock ID generation
   }
 
-  editerUser(userModifie: User) {
-    // this.http.put<User>(`${this.apiUrl}/${userModifie.id_user}`, userModifie).subscribe(updatedUser => {
-    //   this.usersSignal.update(users => users.map(u => u.id_user === updatedUser.id_user ? updatedUser : u));
+  updateUser(modifiedUser: User) {
+    // this.http.put<User>(`${this.apiUrl}/${modifiedUser.id}`, modifiedUser).subscribe(updatedUser => {
+    //   this.usersSignal.update(users => users.map(u => u.id === updatedUser.id ? updatedUser : u));
     // });
-    this.usersSignal.update(users =>
-      users.map(u => u.id_user === userModifie.id_user ? userModifie : u)
-    );
+    this.usersSignal.update(users => users.map(u => u.id === modifiedUser.id ? modifiedUser : u));
   }
 
-  supprimerUser(id: number) {
+  deleteUser(id: number) {
     // this.http.delete(`${this.apiUrl}/${id}`).subscribe(() => {
-    //   this.usersSignal.update(users => users.filter(u => u.id_user !== id));
+    //   this.usersSignal.update(users => users.filter(u => u.id !== id));
     // });
-    this.usersSignal.update(users => users.filter(u => u.id_user !== id));
+    this.usersSignal.update(users => users.filter(u => u.id !== id));
   }
 }
