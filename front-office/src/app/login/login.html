@@ -1,0 +1,169 @@
+<div class="min-h-screen bg-gradient-to-br from-indigo-500 via-violet-500 to-purple-600 px-4 py-10 sm:flex sm:items-center sm:justify-center">
+    <div class="mx-auto w-full max-w-lg rounded-2xl bg-white/95 p-6 shadow-2xl backdrop-blur sm:p-8">
+        <h1 class="mb-6 text-center text-3xl font-bold tracking-tight text-slate-800">{{ isLoginMode ? 'Connexion' : 'Inscription' }}</h1>
+
+        <div *ngIf="errorMessage" class="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+            {{ errorMessage }}
+        </div>
+
+        <form *ngIf="isLoginMode" [formGroup]="loginForm" (ngSubmit)="onLoginSubmit()" class="space-y-4">
+            <div class="space-y-1">
+                <label for="login-identifier" class="mb-1 block text-sm font-medium text-slate-700">Identifiant</label>
+                <input
+                    type="text"
+                    id="login-identifier"
+                    formControlName="identifier"
+                    placeholder="Entrez votre identifiant"
+                    [disabled]="loading"
+                    class="w-full rounded-lg border px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:ring-4 disabled:cursor-not-allowed disabled:bg-slate-100"
+                    [ngClass]="isControlInvalid(loginForm, 'identifier') ? 'border-red-400 focus:border-red-400 focus:ring-red-100' : 'border-slate-300 focus:border-indigo-500 focus:ring-indigo-100'" />
+                <small class="mt-1 block text-xs text-red-600" *ngIf="isControlInvalid(loginForm, 'identifier')">
+                    L'identifiant est requis (min 3 caracteres)
+                </small>
+            </div>
+
+            <div class="space-y-1">
+                <label for="login-password" class="mb-1 block text-sm font-medium text-slate-700">Mot de passe</label>
+                <input
+                    type="password"
+                    id="login-password"
+                    formControlName="password"
+                    placeholder="Entrez votre mot de passe"
+                    [disabled]="loading"
+                    class="w-full rounded-lg border px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:ring-4 disabled:cursor-not-allowed disabled:bg-slate-100"
+                    [ngClass]="isControlInvalid(loginForm, 'password') ? 'border-red-400 focus:border-red-400 focus:ring-red-100' : 'border-slate-300 focus:border-indigo-500 focus:ring-indigo-100'" />
+                <small class="mt-1 block text-xs text-red-600" *ngIf="isControlInvalid(loginForm, 'password')">
+                    Le mot de passe est requis (min 6 caracteres)
+                </small>
+            </div>
+
+            <button
+                type="submit"
+                [disabled]="loading"
+                class="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-indigo-700 hover:shadow disabled:cursor-not-allowed disabled:opacity-70">
+                <span *ngIf="!loading">Connexion</span>
+                <span *ngIf="loading" class="inline-flex items-center gap-2">
+                    <span class="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white"></span>
+                    Connexion en cours...
+                </span>
+            </button>
+        </form>
+
+        <form *ngIf="!isLoginMode" [formGroup]="registerForm" (ngSubmit)="onRegisterSubmit()" class="space-y-4">
+            <div class="space-y-1">
+                <label for="register-name" class="mb-1 block text-sm font-medium text-slate-700">Nom</label>
+                <input
+                    type="text"
+                    id="register-name"
+                    formControlName="name"
+                    placeholder="Entrez votre nom"
+                    [disabled]="loading"
+                    class="w-full rounded-lg border px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:ring-4 disabled:cursor-not-allowed disabled:bg-slate-100"
+                    [ngClass]="isControlInvalid(registerForm, 'name') ? 'border-red-400 focus:border-red-400 focus:ring-red-100' : 'border-slate-300 focus:border-indigo-500 focus:ring-indigo-100'" />
+                <small class="mt-1 block text-xs text-red-600" *ngIf="isControlInvalid(registerForm, 'name')">
+                    Le nom est requis (min 2 caracteres)
+                </small>
+            </div>
+
+            <div class="space-y-1">
+                <label for="register-siret" class="mb-1 block text-sm font-medium text-slate-700">Numero SIRET</label>
+                <input
+                    type="text"
+                    id="register-siret"
+                    formControlName="siret"
+                    placeholder="Entrez votre numero SIRET (14 chiffres)"
+                    [disabled]="loading"
+                    class="w-full rounded-lg border px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:ring-4 disabled:cursor-not-allowed disabled:bg-slate-100"
+                    [ngClass]="isControlInvalid(registerForm, 'siret') ? 'border-red-400 focus:border-red-400 focus:ring-red-100' : 'border-slate-300 focus:border-indigo-500 focus:ring-indigo-100'" />
+                <small class="mt-1 block text-xs text-red-600" *ngIf="isControlInvalid(registerForm, 'siret') && registerForm.get('siret')?.hasError('required')">
+                    Le SIRET est obligatoire
+                </small>
+                <small class="mt-1 block text-xs text-red-600" *ngIf="isControlInvalid(registerForm, 'siret') && !registerForm.get('siret')?.hasError('required') && registerForm.get('siret')?.hasError('pattern')">
+                    Le SIRET doit contenir exactement 14 chiffres
+                </small>
+            </div>
+
+            <div class="space-y-1">
+                <label for="register-city" class="mb-1 block text-sm font-medium text-slate-700">Ville</label>
+                <input
+                    type="text"
+                    id="register-city"
+                    formControlName="city"
+                    placeholder="Entrez votre ville"
+                    [disabled]="loading"
+                    class="w-full rounded-lg border px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:ring-4 disabled:cursor-not-allowed disabled:bg-slate-100"
+                    [ngClass]="isControlInvalid(registerForm, 'city') ? 'border-red-400 focus:border-red-400 focus:ring-red-100' : 'border-slate-300 focus:border-indigo-500 focus:ring-indigo-100'" />
+                <small class="mt-1 block text-xs text-red-600" *ngIf="isControlInvalid(registerForm, 'city')">
+                    La ville est requise (min 2 caracteres)
+                </small>
+            </div>
+
+            <div class="space-y-1">
+                <label for="register-identifier" class="mb-1 block text-sm font-medium text-slate-700">Identifiant</label>
+                <input
+                    type="text"
+                    id="register-identifier"
+                    formControlName="identifier"
+                    placeholder="Creez votre identifiant"
+                    [disabled]="loading"
+                    class="w-full rounded-lg border px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:ring-4 disabled:cursor-not-allowed disabled:bg-slate-100"
+                    [ngClass]="isControlInvalid(registerForm, 'identifier') ? 'border-red-400 focus:border-red-400 focus:ring-red-100' : 'border-slate-300 focus:border-indigo-500 focus:ring-indigo-100'" />
+                <small class="mt-1 block text-xs text-red-600" *ngIf="isControlInvalid(registerForm, 'identifier')">
+                    L'identifiant est requis (min 3 caracteres)
+                </small>
+            </div>
+
+            <div class="space-y-1">
+                <label for="register-password" class="mb-1 block text-sm font-medium text-slate-700">Mot de passe</label>
+                <input
+                    type="password"
+                    id="register-password"
+                    formControlName="password"
+                    placeholder="Creez votre mot de passe"
+                    [disabled]="loading"
+                    class="w-full rounded-lg border px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:ring-4 disabled:cursor-not-allowed disabled:bg-slate-100"
+                    [ngClass]="isControlInvalid(registerForm, 'password') ? 'border-red-400 focus:border-red-400 focus:ring-red-100' : 'border-slate-300 focus:border-indigo-500 focus:ring-indigo-100'" />
+                <small class="mt-1 block text-xs text-red-600" *ngIf="isControlInvalid(registerForm, 'password')">
+                    Le mot de passe est requis (min 6 caracteres)
+                </small>
+            </div>
+
+            <div class="space-y-1">
+                <label for="register-confirm-password" class="mb-1 block text-sm font-medium text-slate-700">Confirmer le mot de passe</label>
+                <input
+                    type="password"
+                    id="register-confirm-password"
+                    formControlName="confirmPassword"
+                    placeholder="Confirmez votre mot de passe"
+                    [disabled]="loading"
+                    class="w-full rounded-lg border px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:ring-4 disabled:cursor-not-allowed disabled:bg-slate-100"
+                    [ngClass]="isControlInvalid(registerForm, 'confirmPassword') ? 'border-red-400 focus:border-red-400 focus:ring-red-100' : 'border-slate-300 focus:border-indigo-500 focus:ring-indigo-100'" />
+                <small class="mt-1 block text-xs text-red-600" *ngIf="isControlInvalid(registerForm, 'confirmPassword')">
+                    La confirmation du mot de passe est requise
+                </small>
+            </div>
+
+            <button
+                type="submit"
+                [disabled]="loading"
+                class="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-indigo-700 hover:shadow disabled:cursor-not-allowed disabled:opacity-70">
+                <span *ngIf="!loading">S'inscrire</span>
+                <span *ngIf="loading" class="inline-flex items-center gap-2">
+                    <span class="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white"></span>
+                    Inscription en cours...
+                </span>
+            </button>
+        </form>
+
+        <p class="mt-6 border-t border-slate-200 pt-5 text-center text-sm text-slate-600">
+            {{ isLoginMode ? 'Pas encore de compte ?' : 'Vous avez deja un compte ?' }}
+            <button
+                type="button"
+                (click)="toggleMode()"
+                [disabled]="loading"
+                class="ml-1 font-semibold text-indigo-600 underline underline-offset-2 hover:text-indigo-700 disabled:cursor-not-allowed disabled:opacity-70">
+                {{ isLoginMode ? 'Creer un compte' : 'Connectez-vous' }}
+            </button>
+        </p>
+    </div>
+</div>
