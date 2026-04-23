@@ -66,7 +66,7 @@ export class Login {
                 next: (response) => {
                     console.log('Connexion réussie:', response);
                     this.loading = false;
-                    this.router.navigate(['']); //TODO redirection vers la page d'accueil ou dashboard après connexion
+                    this.router.navigate(['/home']);
                 },
                 error: (err) => {
                     this.loading = false;
@@ -94,7 +94,7 @@ export class Login {
                 next: (response) => {
                     console.log('Inscription réussie:', response);
                     this.loading = false;
-                    this.router.navigate(['']); //TODO redirection vers la page d'accueil ou dashboard après inscription
+                    this.router.navigate(['/home']);
                 },
                 error: (err) => {
                     this.loading = false;
