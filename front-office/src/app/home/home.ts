@@ -15,6 +15,6 @@ export class Home {
     }
 
     goToNewOrder() {
-        this.router.navigate(['']); //TODO navigate to new order page
+        this.router.navigate(['/orders/new']);
     }
 }
