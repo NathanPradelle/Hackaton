@@ -1,5 +1,6 @@
 package esgi.hackathon.wsd.controller;
 
+import esgi.hackathon.wsd.algorithm.dto.PriceBreakdownDto;
 import esgi.hackathon.wsd.dto.OrderDto;
 import esgi.hackathon.wsd.service.OrderService;
 import java.util.List;
@@ -15,6 +16,18 @@ import org.springframework.web.bind.annotation.*;
 public class OrderController {
 
   private final OrderService orderService;
+
+  /** Simule le prix sans sauvegarder — appelé avant confirmation client. */
+  @PostMapping("/simulate")
+  public ResponseEntity<PriceBreakdownDto> simulate(@RequestBody OrderDto orderDto) {
+    return ResponseEntity.ok(orderService.simulatePriceBreakdown(orderDto));
+  }
+
+  /** Commandes d'un client spécifique (espace client). */
+  @GetMapping("/client/{clientId}")
+  public ResponseEntity<List<OrderDto>> getByClient(@PathVariable Long clientId) {
+    return ResponseEntity.ok(orderService.getByClientId(clientId));
+  }
 
   @GetMapping
   public ResponseEntity<List<OrderDto>> getAllOrders() {

@@ -1,118 +1,117 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { AuthService } from '../services/auth.service';
 
 interface Order {
-    id: number;
-    deliveryDate: string;
-    price: number;
-    quantity: number;
-    status: 'PENDING' | 'DELIVERED' | 'CANCELLED';
+  id: number;
+  adresseTexte: string;
+  dateVoulu: string;
+  plageHoraire: string;
+  prix: number;
+  quantite: number;
+  statut: 'enAttente' | 'confirmee' | 'enCours' | 'livree' | 'annulee';
 }
 
-type SortField = 'id' | 'deliveryDate' | 'price' | 'quantity' | 'status';
-type SortDirection = 'asc' | 'desc';
+type SortField = 'id' | 'dateVoulu' | 'prix' | 'quantite' | 'statut';
 
 @Component({
-    selector: 'app-previous-orders',
-    imports: [CommonModule, FormsModule],
-    templateUrl: './previous-orders.html',
-    styleUrl: './previous-orders.css',
+  selector: 'app-previous-orders',
+  imports: [CommonModule, FormsModule],
+  templateUrl: './previous-orders.html',
+  styleUrl: './previous-orders.css',
 })
-export class PreviousOrders {
-    orders: Order[] = [
-        {
-            id: 1001,
-            deliveryDate: '2026-04-24',
-            price: 120.50,
-            quantity: 5,
-            status: 'PENDING'
-        },
-        {
-            id: 1002,
-            deliveryDate: '2026-04-24',
-            price: 85.00,
-            quantity: 2,
-            status: 'DELIVERED'
-        },
-        {
-            id: 1003,
-            deliveryDate: '2026-04-24',
-            price: 210.00,
-            quantity: 8,
-            status: 'CANCELLED'
-        }
-    ];
+export class PreviousOrders implements OnInit {
+  orders: Order[] = [];
+  loading = true;
+  error = false;
 
-    searchTerm = '';
-    sortField: SortField = 'deliveryDate';
-    sortDirection: SortDirection = 'desc';
+  searchTerm = '';
+  sortField: SortField = 'dateVoulu';
+  sortDirection: 'asc' | 'desc' = 'desc';
 
-    constructor(private router: Router) {}
+  private readonly apiUrl = 'http://localhost:8080/api/orders';
 
-    get hasOrders(): boolean {
-        return this.orders.length > 0;
+  constructor(
+    private router: Router,
+    private http: HttpClient,
+    private authService: AuthService
+  ) {}
+
+  ngOnInit() {
+    const user = this.authService.getCurrentUser();
+    const clientId = user?.clientId;
+
+    if (!clientId) {
+      this.loading = false;
+      return;
     }
 
-    get displayedOrders(): Order[] {
-        const normalizedTerm = this.searchTerm.trim().toLowerCase();
+    this.http.get<Order[]>(`${this.apiUrl}/client/${clientId}`).subscribe({
+      next: (data) => { this.orders = data; this.loading = false; },
+      error: () => { this.error = true; this.loading = false; }
+    });
+  }
 
-        const filteredOrders = this.orders.filter((order) => {
-            if (!normalizedTerm) {
-                return true;
-            }
+  get displayedOrders(): Order[] {
+    const term = this.searchTerm.trim().toLowerCase();
+    const filtered = this.orders.filter(o =>
+      !term ||
+      o.id.toString().includes(term) ||
+      o.dateVoulu.includes(term) ||
+      o.adresseTexte?.toLowerCase().includes(term) ||
+      this.getStatusLabel(o.statut).toLowerCase().includes(term)
+    );
+    return [...filtered].sort((a, b) => this.compareOrders(a, b));
+  }
 
-            const statusFr = this.getStatusLabel(order.status).toLowerCase();
-            return (
-                order.id.toString().includes(normalizedTerm) ||
-                order.deliveryDate.toLowerCase().includes(normalizedTerm) ||
-                order.status.toLowerCase().includes(normalizedTerm) ||
-                statusFr.includes(normalizedTerm)
-            );
-        });
+  get hasOrders(): boolean { return this.orders.length > 0; }
+  get hasFilteredResults(): boolean { return this.displayedOrders.length > 0; }
 
-        return [...filteredOrders].sort((a, b) => this.compareOrders(a, b));
+  getStatusLabel(statut: Order['statut']): string {
+    const labels: Record<string, string> = {
+      enAttente: 'En attente',
+      confirmee: 'Confirmée',
+      enCours:   'En cours',
+      livree:    'Livrée',
+      annulee:   'Annulée',
+    };
+    return labels[statut] ?? statut;
+  }
+
+  getStatusClass(statut: Order['statut']): string {
+    const classes: Record<string, string> = {
+      enAttente: 'status-pending',
+      confirmee: 'status-confirmed',
+      enCours:   'status-in-progress',
+      livree:    'status-delivered',
+      annulee:   'status-cancelled',
+    };
+    return classes[statut] ?? '';
+  }
+
+  setSort(field: SortField) {
+    if (this.sortField === field) {
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortField = field;
+      this.sortDirection = 'asc';
     }
+  }
 
-    get hasFilteredResults(): boolean {
-        return this.displayedOrders.length > 0;
+  isSorted(field: SortField): boolean { return this.sortField === field; }
+
+  private compareOrders(a: Order, b: Order): number {
+    let result: number;
+    if (this.sortField === 'id' || this.sortField === 'prix' || this.sortField === 'quantite') {
+      result = (a[this.sortField] as number) - (b[this.sortField] as number);
+    } else {
+      result = (a[this.sortField] as string).localeCompare(b[this.sortField] as string);
     }
+    return this.sortDirection === 'asc' ? result : -result;
+  }
 
-    getStatusLabel(status: Order['status']): string {
-        if (status === 'PENDING') {
-            return 'En attente';
-        }
-        if (status === 'DELIVERED') {
-            return 'Livree';
-        }
-        return 'Annulee';
-    }
-
-    setSort(field: SortField) {
-        if (this.sortField === field) {
-            this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
-            return;
-        }
-
-        this.sortField = field;
-        this.sortDirection = 'asc';
-    }
-
-    isSorted(field: SortField): boolean {
-        return this.sortField === field;
-    }
-
-    private compareOrders(a: Order, b: Order): number {
-        const result =
-            this.sortField === 'id' || this.sortField === 'price' || this.sortField === 'quantity'
-                ? a[this.sortField] - b[this.sortField]
-                : a[this.sortField].localeCompare(b[this.sortField]);
-
-        return this.sortDirection === 'asc' ? result : -result;
-    }
-
-    goBack() {
-        this.router.navigate(['/home']);
-    }
+  goBack() { this.router.navigate(['/home']); }
 }

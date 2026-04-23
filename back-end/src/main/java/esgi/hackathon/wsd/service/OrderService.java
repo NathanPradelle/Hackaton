@@ -1,5 +1,6 @@
 package esgi.hackathon.wsd.service;
 
+import esgi.hackathon.wsd.algorithm.dto.PriceBreakdownDto;
 import esgi.hackathon.wsd.algorithm.service.GeocodingService;
 import esgi.hackathon.wsd.algorithm.service.PriceSimulationService;
 import esgi.hackathon.wsd.dto.OrderDto;
@@ -83,5 +84,22 @@ public class OrderService {
   @Transactional
   public void deleteOrder(Long id) {
     orderRepository.deleteById(id);
+  }
+
+  /** Simule le prix sans sauvegarder — pour l'affichage client avant confirmation. */
+  @Transactional(readOnly = true)
+  public PriceBreakdownDto simulatePriceBreakdown(OrderDto orderDto) {
+    Order order = orderMapper.toEntity(orderDto);
+    if (order.getClient() != null && order.getClient().getId() == null) order.setClient(null);
+    if (order.getTrip()   != null && order.getTrip().getId()   == null) order.setTrip(null);
+    return priceSimulationService.simulateBreakdown(order);
+  }
+
+  /** Commandes d'un client donné (espace client). */
+  @Transactional(readOnly = true)
+  public List<OrderDto> getByClientId(Long clientId) {
+    return orderRepository.findByClientId(clientId).stream()
+        .map(orderMapper::toDto)
+        .toList();
   }
 }

@@ -24,6 +24,7 @@ export interface AuthResponse {
     name?: string;
     siret?: string;
     city?: string;
+    clientId?: number;
   };
 }
 

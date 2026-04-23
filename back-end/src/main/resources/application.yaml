@@ -44,6 +44,9 @@ algorithm:
     # Écart max entre plages horaires pour les grouper (minutes)
     max-time-gap-minutes: 60
 
-  # Prix = coût carburant × ce coefficient (marge entreprise incluse)
   price:
-    margin-coefficient: 1.3
+    driver-cost-per-km: 0.25   # part salariale chauffeur (€/km, ~15€/h à 60km/h)
+    wear-cost-per-km: 0.15     # usure + entretien + amortissement camion (€/km)
+    toll-cost-per-km: 0.05     # badge télépéage moyenné (€/km)
+    stop-fee: 5.0              # frais fixes par livraison (chargement/déchargement, €)
+    margin-rate: 0.20          # marge bénéfice entreprise (20 %)

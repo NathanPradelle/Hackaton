@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -38,17 +37,4 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/auth/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> credentials) {
-        String identifier = credentials.get("identifier");
-        String password = credentials.get("password");
-
-        UserDto user = userService.login(identifier, password);
-
-        if (user != null) {
-            return ResponseEntity.ok(user);
-        } else {
-            return ResponseEntity.status(401).body("Identifiant ou mot de passe incorrect");
-        }
-    }
 }

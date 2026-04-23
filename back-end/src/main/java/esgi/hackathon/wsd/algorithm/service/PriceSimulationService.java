@@ -1,5 +1,6 @@
 package esgi.hackathon.wsd.algorithm.service;
 
+import esgi.hackathon.wsd.algorithm.dto.PriceBreakdownDto;
 import esgi.hackathon.wsd.entity.logistics.Truck;
 import esgi.hackathon.wsd.entity.operations.Order;
 import esgi.hackathon.wsd.enums.FuelType;
@@ -15,8 +16,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /**
- * Simulation légère déclenchée à la création d'une commande.
- * Estime le prix proratisé en fonction du trajet groupé et applique le coefficient de marge.
+ * Simulation de prix déclenchée à la demande du client (avant confirmation)
+ * et automatiquement lors de la création de commande.
+ *
+ * Formule :
+ *   coût_km = carburant_km + salarial_km + usure_km + péage_km
+ *   coût_tournée = coût_km × distance + frais_stop × nb_stops
+ *   part_commande = coût_tournée × (qté_commande / qté_totale)
+ *   prix = part_commande × (1 + marge)
  */
 @Service
 public class PriceSimulationService {
@@ -24,41 +31,37 @@ public class PriceSimulationService {
     private static final Logger log = LoggerFactory.getLogger(PriceSimulationService.class);
     private static final double ROAD_FACTOR = 1.3;
 
-    @Value("${algorithm.depot.latitude}")
-    private double depotLat;
+    @Value("${algorithm.depot.latitude}")  private double depotLat;
+    @Value("${algorithm.depot.longitude}") private double depotLng;
 
-    @Value("${algorithm.depot.longitude}")
-    private double depotLng;
-
-    @Value("${algorithm.price.margin-coefficient}")
-    private double marginCoefficient;
+    @Value("${algorithm.price.driver-cost-per-km}") private double driverCostPerKm;
+    @Value("${algorithm.price.wear-cost-per-km}")   private double wearCostPerKm;
+    @Value("${algorithm.price.toll-cost-per-km}")   private double tollCostPerKm;
+    @Value("${algorithm.price.stop-fee}")            private double stopFee;
+    @Value("${algorithm.price.margin-rate}")         private double marginRate;
 
     private final GeocodingService geocodingService;
     private final OrderGroupingService orderGroupingService;
-    private final FuelPlanningService fuelPlanningService;
     private final OrderRepository orderRepository;
     private final TruckRepository truckRepository;
 
     public PriceSimulationService(
         GeocodingService geocodingService,
         OrderGroupingService orderGroupingService,
-        FuelPlanningService fuelPlanningService,
         OrderRepository orderRepository,
         TruckRepository truckRepository
     ) {
         this.geocodingService     = geocodingService;
         this.orderGroupingService = orderGroupingService;
-        this.fuelPlanningService  = fuelPlanningService;
         this.orderRepository      = orderRepository;
         this.truckRepository      = truckRepository;
     }
 
     /**
-     * Calcule le prix estimé pour une commande.
-     * Géocode l'adresse si les coordonnées sont absentes (et les pose sur l'entité).
-     * Retourne 0.0 si le calcul n'est pas possible.
+     * Calcule le prix estimé et retourne le détail du calcul.
+     * Géocode l'adresse si les coordonnées sont absentes (les pose sur l'entité).
      */
-    public double simulatePrice(Order newOrder) {
+    public PriceBreakdownDto simulateBreakdown(Order newOrder) {
         if (newOrder.getLatitude() == null && newOrder.getAddressText() != null) {
             double[] coords = geocodingService.geocode(newOrder.getAddressText());
             if (coords != null) {
@@ -68,22 +71,24 @@ public class PriceSimulationService {
         }
 
         if (newOrder.getLatitude() == null) {
-            log.warn("Impossible de simuler le prix : coordonnées inconnues pour '{}'", newOrder.getAddressText());
-            return 0.0;
+            log.warn("Coordonnées introuvables pour '{}' — prix à 0", newOrder.getAddressText());
+            return zero();
         }
 
-        // Paramètres du premier camion disponible (fallback sur des valeurs par défaut)
+        // Référence : premier camion diesel disponible (fallback si aucun)
         List<Truck> available = truckRepository.findByStatus(TruckStatus.AVAILABLE);
-        Truck refTruck = available.stream().filter(t -> t.getModel() != null).findFirst().orElse(null);
+        Truck ref = available.stream()
+            .filter(t -> t.getModel() != null && t.getModel().getFuelConsumption() != null
+                && t.getModel().getFuelConsumption() > 0)
+            .findFirst().orElse(null);
 
-        int truckCapacity = refTruck != null && refTruck.getModel().getCapacity() != null
-            ? refTruck.getModel().getCapacity().intValue() : 100;
-        double consumption = refTruck != null && refTruck.getModel().getFuelConsumption() != null
-            ? refTruck.getModel().getFuelConsumption() : 30.0;
-        FuelType fuelType = refTruck != null && refTruck.getModel().getFuelType() != null
-            ? refTruck.getModel().getFuelType() : FuelType.DIESEL;
+        int truckCapacity = ref != null && ref.getModel().getCapacity() != null
+            ? ref.getModel().getCapacity().intValue() : 100;
+        double consumption = ref != null ? ref.getModel().getFuelConsumption() : 8.5; // L/100 km
+        FuelType fuelType  = ref != null && ref.getModel().getFuelType() != null
+            ? ref.getModel().getFuelType() : FuelType.DIESEL;
 
-        // Commandes existantes compatibles pour le même jour
+        // Commandes existantes compatibles pour groupage
         List<Order> candidates = newOrder.getRequestedDate() != null
             ? orderRepository.findByStatusAndRequestedDate(OrderStatus.PENDING, newOrder.getRequestedDate())
             : List.of();
@@ -94,44 +99,75 @@ public class PriceSimulationService {
         allStops.addAll(grouped);
 
         double totalDistKm = estimateRouteDistance(allStops);
-        double pricePerLitre = FuelPlanningService.defaultFuelPrice(fuelType);
-        double fuelCost = fuelPlanningService.estimateFuelCost(totalDistKm, consumption, pricePerLitre);
+        int    totalQty    = allStops.stream().mapToInt(o -> o.getQuantity() != null ? o.getQuantity() : 1).sum();
+        int    orderQty    = newOrder.getQuantity() != null ? newOrder.getQuantity() : 1;
+        double ratio       = totalQty > 0 ? (double) orderQty / totalQty : 1.0;
 
-        int totalQty = allStops.stream().mapToInt(o -> o.getQuantity() != null ? o.getQuantity() : 1).sum();
-        int orderQty = newOrder.getQuantity() != null ? newOrder.getQuantity() : 1;
-        double prorated = totalQty > 0 ? fuelCost * ((double) orderQty / totalQty) : fuelCost;
+        // Coût carburant
+        double fuelPricePerLitre = FuelPlanningService.defaultFuelPrice(fuelType);
+        double fuelCostPerKm     = (consumption / 100.0) * fuelPricePerLitre;
 
-        double price = Math.round(prorated * marginCoefficient * 100.0) / 100.0;
-        log.info("Prix simulé : {} carton(s), {} km estimés → {} €", orderQty, Math.round(totalDistKm), price);
-        return price;
+        // Coût total tournée puis proratisation
+        double routeFuelCost   = fuelCostPerKm  * totalDistKm * ratio;
+        double routeDriverCost = driverCostPerKm * totalDistKm * ratio;
+        double routeWearCost   = wearCostPerKm   * totalDistKm * ratio;
+        double routeTollCost   = tollCostPerKm   * totalDistKm * ratio;
+        double orderStopFee    = stopFee; // frais fixe par livraison, non proratisé
+
+        double subtotal = routeFuelCost + routeDriverCost + routeWearCost + routeTollCost + orderStopFee;
+        double marge    = subtotal * marginRate;
+        double total    = subtotal + marge;
+
+        log.info("Simulation : {} carton(s), {} km (tournée), ratio={}% → {} €",
+            orderQty, Math.round(totalDistKm), Math.round(ratio * 100), round(total));
+
+        return new PriceBreakdownDto(
+            round(totalDistKm),
+            round(routeFuelCost),
+            round(routeDriverCost),
+            round(routeWearCost),
+            round(routeTollCost),
+            round(orderStopFee),
+            round(subtotal),
+            round(marge),
+            round(total)
+        );
     }
 
-    /** Nearest-neighbor depuis le dépôt pour estimer la distance route de la tournée. */
+    /** Raccourci : retourne uniquement le prix total (pour createOrder). */
+    public double simulatePrice(Order newOrder) {
+        return simulateBreakdown(newOrder).prixTotal();
+    }
+
+    private PriceBreakdownDto zero() {
+        return new PriceBreakdownDto(0, 0, 0, 0, 0, 0, 0, 0, 0);
+    }
+
+    private double round(double v) {
+        return Math.round(v * 100.0) / 100.0;
+    }
+
+    /** Nearest-neighbor depuis le dépôt pour estimer la distance route. */
     private double estimateRouteDistance(List<Order> orders) {
         List<Order> remaining = new ArrayList<>(orders.stream()
-            .filter(o -> o.getLatitude() != null)
-            .toList());
+            .filter(o -> o.getLatitude() != null).toList());
 
         double totalDist = 0;
         double curLat = depotLat;
         double curLng = depotLng;
 
         while (!remaining.isEmpty()) {
-            final double lat = curLat;
-            final double lng = curLng;
+            final double lat = curLat, lng = curLng;
             Order nearest = remaining.stream()
                 .min((a, b) -> Double.compare(
                     RoutingService.haversine(lat, lng, a.getLatitude(), a.getLongitude()),
-                    RoutingService.haversine(lat, lng, b.getLatitude(), b.getLongitude())
-                ))
+                    RoutingService.haversine(lat, lng, b.getLatitude(), b.getLongitude())))
                 .orElseThrow();
-
             totalDist += RoutingService.haversine(curLat, curLng, nearest.getLatitude(), nearest.getLongitude()) * ROAD_FACTOR;
             curLat = nearest.getLatitude();
             curLng = nearest.getLongitude();
             remaining.remove(nearest);
         }
-
         totalDist += RoutingService.haversine(curLat, curLng, depotLat, depotLng) * ROAD_FACTOR;
         return totalDist;
     }

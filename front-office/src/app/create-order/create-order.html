@@ -1,148 +1,191 @@
 <div class="min-h-screen bg-slate-100 px-4 py-10">
-	<div class="mx-auto max-w-5xl">
-		<div class="mb-4">
-			<button (click)="goBack()" class="inline-flex items-center gap-2 text-sm font-medium text-slate-600 transition hover:text-slate-900">
-				<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Retour a l'accueil
-			</button>
-		</div>
+  <div class="mx-auto max-w-2xl">
 
-		<div class="mb-6 rounded-2xl bg-gradient-to-r from-indigo-600 via-violet-600 to-purple-600 p-6 text-white shadow-lg">
-			<div class="flex items-start gap-3">
-				<svg class="mt-1 h-6 w-6 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-					<path d="M3 6h18M7 12h10M10 18h4" stroke-linecap="round" />
-				</svg>
-				<div>
-					<h1 class="text-2xl font-bold tracking-tight">Passer une commande</h1>
-				</div>
-			</div>
-		</div>
+    <!-- Header -->
+    <div class="mb-4">
+      <button (click)="goBack()" class="inline-flex items-center gap-2 text-sm font-medium text-slate-600 transition hover:text-slate-900">
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Retour à l'accueil
+      </button>
+    </div>
 
-		<div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 sm:p-8">
-			<form [formGroup]="orderForm" (ngSubmit)="onSubmit()" class="grid gap-5 sm:grid-cols-2">
-                <div class="space-y-1 sm:col-span-2">
-                    <label for="address" class="block text-sm font-medium text-slate-700">Adresse</label>
-                    <div class="relative">
-                        <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg>
-                        </span>
-                        <input
-                            id="address"
-                            type="text"
-                            formControlName="address"
-                            placeholder="Ex: 123 rue de Paris, 75001 Paris"
-                            class="w-full rounded-lg border py-2.5 pl-10 pr-3 text-sm outline-none transition focus:ring-4"
-                            [ngClass]="isControlInvalid('address') ? 'border-red-400 focus:border-red-400 focus:ring-red-100' : 'border-slate-300 focus:border-indigo-500 focus:ring-indigo-100'" />
-                    </div>
-                    <small class="block text-xs text-red-600" *ngIf="isControlInvalid('address')">L'adresse est obligatoire (min 5 caractères).</small>
-                </div>
+    <div class="mb-6 rounded-2xl bg-gradient-to-r from-indigo-600 via-violet-600 to-purple-600 p-6 text-white shadow-lg">
+      <h1 class="text-2xl font-bold tracking-tight">Passer une commande</h1>
+      <p class="mt-1 text-sm text-indigo-100">
+        {{ step === 'form' ? 'Remplissez le formulaire pour obtenir un prix estimé.' : 'Vérifiez le détail du prix avant de confirmer.' }}
+      </p>
+    </div>
 
-                <div class="space-y-1">
-                    <label for="requestedDate" class="block text-sm font-medium text-slate-700">Date voulue</label>
-                    <div class="relative">
-                        <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
-                        </span>
-                        <input
-                            id="requestedDate"
-                            type="date"
-                            formControlName="requestedDate"
-                            class="w-full rounded-lg border py-2.5 pl-10 pr-3 text-sm outline-none transition focus:ring-4"
-                            [ngClass]="isControlInvalid('requestedDate') ? 'border-red-400 focus:border-red-400 focus:ring-red-100' : 'border-slate-300 focus:border-indigo-500 focus:ring-indigo-100'" />
-                    </div>
-                    <small class="block text-xs text-red-600" *ngIf="isControlInvalid('requestedDate')">La date voulue est obligatoire.</small>
-                </div>
+    <!-- ÉTAPE 1 : Formulaire -->
+    @if (step === 'form') {
+      <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 sm:p-8">
+        <form [formGroup]="orderForm" (ngSubmit)="simulatePrice()" class="grid gap-5 sm:grid-cols-2">
 
-                <div class="space-y-1">
-                    <label for="timeSlot" class="block text-sm font-medium text-slate-700">Plage horaire</label>
-                    <div class="relative">
-                        <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-                        </span>
-                        <select
-                            id="timeSlot"
-                            formControlName="timeSlot"
-                            class="w-full rounded-lg border bg-white py-2.5 pl-10 pr-3 text-sm outline-none transition focus:ring-4"
-                            [ngClass]="isControlInvalid('timeSlot') ? 'border-red-400 focus:border-red-400 focus:ring-red-100' : 'border-slate-300 focus:border-indigo-500 focus:ring-indigo-100'">
-                            <option value="" disabled>Choisir une plage horaire</option>
-                            <option value="08:00-10:00">08:00 - 10:00</option>
-                            <option value="10:00-12:00">10:00 - 12:00</option>
-                            <option value="14:00-16:00">14:00 - 16:00</option>
-                            <option value="16:00-18:00">16:00 - 18:00</option>
-                        </select>
-                    </div>
-                    <small class="block text-xs text-red-600" *ngIf="isControlInvalid('timeSlot')">La plage horaire est obligatoire.</small>
-                </div>
+          <div class="space-y-1 sm:col-span-2">
+            <label class="block text-sm font-medium text-slate-700">Adresse de livraison</label>
+            <input type="text" formControlName="address"
+              placeholder="Ex : 120 Avenue des Champs-Élysées, 75008 Paris"
+              class="w-full rounded-lg border py-2.5 px-3 text-sm outline-none transition focus:ring-4"
+              [ngClass]="isControlInvalid('address') ? 'border-red-400 focus:ring-red-100' : 'border-slate-300 focus:border-indigo-500 focus:ring-indigo-100'" />
+            @if (isControlInvalid('address')) {
+              <small class="text-xs text-red-600">L'adresse est obligatoire (min 5 caractères).</small>
+            }
+          </div>
 
-                <div class="space-y-1 sm:col-span-2">
-                    <label for="quantity" class="block text-sm font-medium text-slate-700">Quantité</label>
-                    <div class="relative">
-                        <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
-                        </span>
-                        <input
-                            id="quantity"
-                            type="number"
-                            min="1"
-                            formControlName="quantity"
-                            class="w-full rounded-lg border py-2.5 pl-10 pr-3 text-sm outline-none transition focus:ring-4"
-                            [ngClass]="isControlInvalid('quantity') ? 'border-red-400 focus:border-red-400 focus:ring-red-100' : 'border-slate-300 focus:border-indigo-500 focus:ring-indigo-100'" />
-                    </div>
-                    <small class="block text-xs text-red-600" *ngIf="isControlInvalid('quantity')">La quantité minimal est 1.</small>
-                </div>
+          <div class="space-y-1">
+            <label class="block text-sm font-medium text-slate-700">Date souhaitée</label>
+            <input type="date" formControlName="requestedDate"
+              class="w-full rounded-lg border py-2.5 px-3 text-sm outline-none transition focus:ring-4"
+              [ngClass]="isControlInvalid('requestedDate') ? 'border-red-400 focus:ring-red-100' : 'border-slate-300 focus:border-indigo-500 focus:ring-indigo-100'" />
+            @if (isControlInvalid('requestedDate')) {
+              <small class="text-xs text-red-600">La date est obligatoire.</small>
+            }
+          </div>
 
-                <div class="sm:col-span-2">
-                    <button
-                        type="submit"
-                        [disabled]="loading"
-                        class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-70">
-                        <svg *ngIf="!loading" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M12 3l9 9-9 9" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        <span *ngIf="!loading">Envoyer la commande</span>
-                        <span *ngIf="loading" class="inline-flex items-center gap-2">
-                            <span class="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white"></span>
-                            Envoi en cours...
-                        </span>
-                    </button>
-                </div>
-            </form>
-		</div>
-	</div>
+          <div class="space-y-1">
+            <label class="block text-sm font-medium text-slate-700">Plage horaire</label>
+            <select formControlName="timeSlot"
+              class="w-full rounded-lg border bg-white py-2.5 px-3 text-sm outline-none transition focus:ring-4"
+              [ngClass]="isControlInvalid('timeSlot') ? 'border-red-400 focus:ring-red-100' : 'border-slate-300 focus:border-indigo-500 focus:ring-indigo-100'">
+              <option value="" disabled>Choisir une plage</option>
+              <option value="08:00-10:00">08:00 – 10:00</option>
+              <option value="10:00-12:00">10:00 – 12:00</option>
+              <option value="14:00-16:00">14:00 – 16:00</option>
+              <option value="16:00-18:00">16:00 – 18:00</option>
+            </select>
+            @if (isControlInvalid('timeSlot')) {
+              <small class="text-xs text-red-600">La plage horaire est obligatoire.</small>
+            }
+          </div>
 
-	<div class="fixed right-4 top-4 z-50 flex w-[22rem] max-w-[calc(100vw-2rem)] flex-col gap-3">
-		<div
-			*ngFor="let toast of toasts"
-			class="rounded-xl border bg-white p-4 shadow-lg"
-			[ngClass]="{
-				'border-emerald-200': toast.type === 'success',
-				'border-red-200': toast.type === 'error',
-				'border-slate-200': toast.type === 'info'
-			}">
-			<div class="flex items-start gap-3">
-				<div
-					class="mt-0.5 rounded-full p-1"
-					[ngClass]="{
-						'bg-emerald-100 text-emerald-700': toast.type === 'success',
-						'bg-red-100 text-red-700': toast.type === 'error',
-						'bg-slate-100 text-slate-700': toast.type === 'info'
-					}">
-					<svg *ngIf="toast.type === 'success'" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 5 5L20 7"/></svg>
-					<svg *ngIf="toast.type === 'error'" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 9-6 6M9 9l6 6"/></svg>
-					<svg *ngIf="toast.type === 'info'" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 10v6M12 7h.01"/></svg>
-				</div>
+          <div class="space-y-1 sm:col-span-2">
+            <label class="block text-sm font-medium text-slate-700">Nombre de cartons</label>
+            <input type="number" min="1" formControlName="quantity"
+              class="w-full rounded-lg border py-2.5 px-3 text-sm outline-none transition focus:ring-4"
+              [ngClass]="isControlInvalid('quantity') ? 'border-red-400 focus:ring-red-100' : 'border-slate-300 focus:border-indigo-500 focus:ring-indigo-100'" />
+            @if (isControlInvalid('quantity')) {
+              <small class="text-xs text-red-600">Quantité minimale : 1 carton.</small>
+            }
+          </div>
 
-				<div class="min-w-0 flex-1">
-					<p class="text-sm font-semibold text-slate-800">{{ toast.title }}</p>
-					<p class="mt-1 text-xs text-slate-600">{{ toast.message }}</p>
-				</div>
+          <div class="sm:col-span-2">
+            <button type="submit" [disabled]="loading"
+              class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 disabled:opacity-60">
+              @if (loading) {
+                <span class="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white"></span>
+                Calcul en cours...
+              } @else {
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 7H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2v-3"/><path d="M12 3h6v6"/><path d="m15 3 6 6"/></svg>
+                Calculer le prix estimé
+              }
+            </button>
+          </div>
+        </form>
+      </div>
+    }
 
-				<button
-					type="button"
-					(click)="removeToast(toast.id)"
-					class="text-slate-400 transition hover:text-slate-600"
-					aria-label="Fermer">
-					<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 6 12 12M18 6 6 18"/></svg>
-				</button>
-			</div>
-		</div>
-	</div>
+    <!-- ÉTAPE 2 : Détail du prix + confirmation -->
+    @if (step === 'confirm' && breakdown) {
+      <div class="space-y-4">
+
+        <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+          <h2 class="mb-3 text-base font-semibold text-slate-800">Récapitulatif de votre commande</h2>
+          <div class="grid gap-1 text-sm text-slate-600 sm:grid-cols-2">
+            <span class="font-medium text-slate-700">Adresse :</span>
+            <span>{{ orderForm.value.address }}</span>
+            <span class="font-medium text-slate-700">Date :</span>
+            <span>{{ orderForm.value.requestedDate }}</span>
+            <span class="font-medium text-slate-700">Plage horaire :</span>
+            <span>{{ orderForm.value.timeSlot }}</span>
+            <span class="font-medium text-slate-700">Quantité :</span>
+            <span>{{ orderForm.value.quantity }} carton(s)</span>
+            <span class="font-medium text-slate-700">Distance estimée :</span>
+            <span>{{ breakdown.distanceKm }} km</span>
+          </div>
+        </div>
+
+        <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+          <h2 class="mb-4 text-base font-semibold text-slate-800">Détail du prix</h2>
+          <div class="space-y-2 text-sm">
+            <div class="flex justify-between text-slate-600">
+              <span>Carburant</span>
+              <span>{{ breakdown.coutCarburant | currency:'EUR':'symbol':'1.2-2' }}</span>
+            </div>
+            <div class="flex justify-between text-slate-600">
+              <span>Part salariale chauffeur</span>
+              <span>{{ breakdown.partSalariale | currency:'EUR':'symbol':'1.2-2' }}</span>
+            </div>
+            <div class="flex justify-between text-slate-600">
+              <span>Usure & entretien véhicule</span>
+              <span>{{ breakdown.usureCamion | currency:'EUR':'symbol':'1.2-2' }}</span>
+            </div>
+            <div class="flex justify-between text-slate-600">
+              <span>Badge télépéage</span>
+              <span>{{ breakdown.badgeTelepeage | currency:'EUR':'symbol':'1.2-2' }}</span>
+            </div>
+            <div class="flex justify-between text-slate-600">
+              <span>Frais de livraison</span>
+              <span>{{ breakdown.fraisLivraison | currency:'EUR':'symbol':'1.2-2' }}</span>
+            </div>
+            <div class="mt-2 flex justify-between border-t pt-2 text-slate-700">
+              <span>Sous-total</span>
+              <span>{{ breakdown.sousTotal | currency:'EUR':'symbol':'1.2-2' }}</span>
+            </div>
+            <div class="flex justify-between text-slate-600">
+              <span>Marge entreprise (20 %)</span>
+              <span>{{ breakdown.marge | currency:'EUR':'symbol':'1.2-2' }}</span>
+            </div>
+            <div class="mt-2 flex justify-between rounded-lg bg-indigo-50 px-3 py-2 text-base font-bold text-indigo-700 ring-1 ring-indigo-200">
+              <span>Total TTC</span>
+              <span>{{ breakdown.prixTotal | currency:'EUR':'symbol':'1.2-2' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex gap-3">
+          <button (click)="backToForm()" [disabled]="loading"
+            class="flex-1 rounded-lg border border-slate-300 bg-white py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:opacity-60">
+            Modifier
+          </button>
+          <button (click)="confirmOrder()" [disabled]="loading"
+            class="flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-600 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 disabled:opacity-60">
+            @if (loading) {
+              <span class="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white"></span>
+              Enregistrement...
+            } @else {
+              Confirmer la commande
+            }
+          </button>
+        </div>
+
+      </div>
+    }
+
+  </div>
+
+  <!-- Toasts -->
+  <div class="fixed right-4 top-4 z-50 flex w-80 flex-col gap-3">
+    @for (toast of toasts; track toast.id) {
+      <div class="rounded-xl border bg-white p-4 shadow-lg"
+        [ngClass]="{ 'border-emerald-200': toast.type === 'success', 'border-red-200': toast.type === 'error', 'border-slate-200': toast.type === 'info' }">
+        <div class="flex items-start gap-3">
+          <div class="mt-0.5 rounded-full p-1"
+            [ngClass]="{ 'bg-emerald-100 text-emerald-700': toast.type === 'success', 'bg-red-100 text-red-700': toast.type === 'error', 'bg-slate-100 text-slate-700': toast.type === 'info' }">
+            @if (toast.type === 'success') {
+              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 5 5L20 7"/></svg>
+            } @else {
+              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 9-6 6M9 9l6 6"/></svg>
+            }
+          </div>
+          <div class="flex-1">
+            <p class="text-sm font-semibold text-slate-800">{{ toast.title }}</p>
+            <p class="mt-1 text-xs text-slate-600">{{ toast.message }}</p>
+          </div>
+          <button (click)="removeToast(toast.id)" class="text-slate-400 hover:text-slate-600">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 6 12 12M18 6 6 18"/></svg>
+          </button>
+        </div>
+      </div>
+    }
+  </div>
 </div>
