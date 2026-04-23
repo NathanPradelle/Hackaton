@@ -1,36 +1,88 @@
+<app-toast></app-toast>
+<app-confirmation-modal></app-confirmation-modal>
 <div style="margin-bottom: 20px;">
   <button routerLink="/dashboard" style="background-color: #718096;">&larr; Retour au Dashboard</button>
 </div>
 
 <h2>Gestion des Commandes</h2>
+
+<div style="display: flex; justify-content: space-between; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+  <button (click)="isAdding.set(true); nouvelleCommande.set({})" style="width: auto; margin: 0;">+ Ajouter une commande</button>
+  <input type="text" placeholder="Rechercher adresse, statut, client..." [(ngModel)]="searchTerm" style="width: 300px; margin-bottom: 0;">
+</div>
+
+@if (isAdding()) {
+  <div class="modal-overlay" (click)="isAdding.set(false)">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <h3 style="margin-top: 0;">{{ nouvelleCommande().id_commande ? 'Modifier la Commande' : 'Nouvelle Commande' }}</h3>
+      <form (ngSubmit)="ajouter()" #commandeForm="ngForm" style="display: flex; flex-direction: column;">
+        <div>
+          <label>Client</label>
+          <select [(ngModel)]="nouvelleCommande().id_client" name="id_client" required>
+            <option [ngValue]="undefined" disabled selected>Choisir un client</option>
+            @for(client of clients(); track client.id_user) {
+              <option [value]="client.id_user">{{ client.identifiant }}</option>
+            }
+          </select>
+        </div>
+        <div><label>Adresse</label><input type="text" [(ngModel)]="nouvelleCommande().adresse_texte" name="adresse" required></div>
+        <div>
+          <label>Statut</label>
+          <select [(ngModel)]="nouvelleCommande().statut" name="statut" required>
+            <option [ngValue]="undefined" disabled selected>Choisir un statut</option>
+            <option value="En attente">En attente</option>
+            <option value="En préparation">En préparation</option>
+            <option value="En cours de livraison">En cours de livraison</option>
+            <option value="Livrée">Livrée</option>
+            <option value="Annulée">Annulée</option>
+          </select>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
+          <button type="button" (click)="isAdding.set(false)" style="background: #e2e8f0; color: #4a5568; width: auto; margin-top: 0;">Annuler</button>
+          <button type="submit" [disabled]="!commandeForm.valid" [style.opacity]="commandeForm.valid ? '1' : '0.5'" style="width: auto; margin-top: 0;">Enregistrer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
 <table>
   <thead>
     <tr>
-      <th>ID Commande</th>
-      <th>ID Client</th>
-      <th>Tournée</th>
-      <th>Adresse</th>
-      <th>Date voulue</th>
-      <th>Plage horaire</th>
-      <th>Quantité</th>
-      <th>Prix</th>
-      <th>Statut</th>
+      <th class="sortable" (click)="sortBy('id_commande')">ID Commande {{ sortColumn() === 'id_commande' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
+      <th class="sortable" (click)="sortBy('id_client')">ID Client {{ sortColumn() === 'id_client' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
+      <th class="sortable" (click)="sortBy('id_tournee')">Tournée {{ sortColumn() === 'id_tournee' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
+      <th class="sortable" (click)="sortBy('adresse_texte')">Adresse {{ sortColumn() === 'adresse_texte' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
+      <th class="sortable" (click)="sortBy('date_voulu')">Date voulue {{ sortColumn() === 'date_voulu' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
+      <th class="sortable" (click)="sortBy('plage_horaire')">Plage horaire {{ sortColumn() === 'plage_horaire' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
+      <th class="sortable" (click)="sortBy('quantite')">Quantité {{ sortColumn() === 'quantite' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
+      <th class="sortable" (click)="sortBy('prix')">Prix {{ sortColumn() === 'prix' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
+      <th class="sortable" (click)="sortBy('statut')">Statut {{ sortColumn() === 'statut' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
       <th>Actions</th>
     </tr>
   </thead>
   <tbody>
-    @for (commande of commandes(); track commande.id_commande) {
+    @for (commande of commandesFiltres(); track commande.id_commande) {
       <tr>
         <td>{{ commande.id_commande }}</td>
-        <td>{{ commande.id_client }}</td>
+        <td>{{ usersMap().get(commande.id_client) || commande.id_client }}</td>
         <td>{{ commande.id_tournee || 'N/A' }}</td>
         <td>{{ commande.adresse_texte }}</td>
-        <td>{{ commande.date_voulu }}</td>
+        <td>{{ commande.date_voulu | date:'dd/MM/yyyy' }}</td>
         <td>{{ commande.plage_horaire }}</td>
         <td>{{ commande.quantite }}</td>
-        <td>{{ commande.prix }} €</td>
+        <td>{{ commande.prix | currency:'EUR' }}</td>
         <td>{{ commande.statut }}</td>
-        <td><button>Éditer</button> <button>Supprimer</button></td>
+        <td>
+          <div class="action-buttons">
+            <button class="icon-btn edit" title="Éditer" (click)="editer(commande)">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+            </button>
+            <button class="icon-btn delete" title="Supprimer" (click)="supprimer(commande.id_commande)">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            </button>
+          </div>
+        </td>
       </tr>
     }
   </tbody>

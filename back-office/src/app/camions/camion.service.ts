@@ -1,5 +1,7 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
 import { Camion } from './camions.component';
+// import { HttpClient } from '@angular/common/http';
+// import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class CamionService {
@@ -11,8 +13,35 @@ export class CamionService {
 
   readonly camions = this.camionsSignal.asReadonly();
 
+  // private http = inject(HttpClient);
+  // private apiUrl = `${environment.apiUrl}/camions`;
+
+  /*
+  chargerCamions() {
+    this.http.get<Camion[]>(this.apiUrl).subscribe(data => this.camionsSignal.set(data));
+  }
+  */
+
   ajouterCamion(camion: Camion) {
-    // Plus tard, ici il y aura l'appel POST vers ton API
+    // this.http.post<Camion>(this.apiUrl, camion).subscribe(newCam => {
+    //   this.camionsSignal.update(camions => [...camions, newCam]);
+    // });
     this.camionsSignal.update(camions => [...camions, camion]);
+  }
+
+  editerCamion(camionModifie: Camion) {
+    // this.http.put<Camion>(`${this.apiUrl}/${camionModifie.id_camion}`, camionModifie).subscribe(updatedCam => {
+    //   this.camionsSignal.update(camions => camions.map(c => c.id_camion === updatedCam.id_camion ? updatedCam : c));
+    // });
+    this.camionsSignal.update(camions =>
+      camions.map(c => c.id_camion === camionModifie.id_camion ? camionModifie : c)
+    );
+  }
+
+  supprimerCamion(id: number) {
+    // this.http.delete(`${this.apiUrl}/${id}`).subscribe(() => {
+    //   this.camionsSignal.update(camions => camions.filter(c => c.id_camion !== id));
+    // });
+    this.camionsSignal.update(camions => camions.filter(c => c.id_camion !== id));
   }
 }

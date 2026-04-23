@@ -1,5 +1,7 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
 import { Commande } from './commandes.component';
+// import { HttpClient } from '@angular/common/http';
+// import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class CommandeService {
@@ -9,4 +11,32 @@ export class CommandeService {
   ]);
 
   readonly commandes = this.commandesSignal.asReadonly();
+
+  // private http = inject(HttpClient);
+  // private apiUrl = `${environment.apiUrl}/commandes`;
+
+  /* chargerCommandes() { ... } */
+
+  ajouterCommande(commande: Commande) {
+    // this.http.post<Commande>(this.apiUrl, commande).subscribe(newCmd => {
+    //   this.commandesSignal.update(commandes => [...commandes, newCmd]);
+    // });
+    this.commandesSignal.update(commandes => [...commandes, commande]);
+  }
+
+  editerCommande(commandeModifiee: Commande) {
+    // this.http.put<Commande>(`${this.apiUrl}/${commandeModifiee.id_commande}`, commandeModifiee).subscribe(updatedCmd => {
+    //   this.commandesSignal.update(commandes => commandes.map(c => c.id_commande === updatedCmd.id_commande ? updatedCmd : c));
+    // });
+    this.commandesSignal.update(commandes =>
+      commandes.map(c => c.id_commande === commandeModifiee.id_commande ? commandeModifiee : c)
+    );
+  }
+
+  supprimerCommande(id: number) {
+    // this.http.delete(`${this.apiUrl}/${id}`).subscribe(() => {
+    //   this.commandesSignal.update(commandes => commandes.filter(c => c.id_commande !== id));
+    // });
+    this.commandesSignal.update(commandes => commandes.filter(c => c.id_commande !== id));
+  }
 }
