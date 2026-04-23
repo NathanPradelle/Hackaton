@@ -1,42 +1,35 @@
 import { Injectable, signal, inject } from '@angular/core';
-import { User } from '../models/user.model';
+import { User } from './user.model';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../environments/environment';
+import { Observable, tap } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
-  // Mock data aligned with the 'User' interface and backend entity
-  private usersSignal = signal<User[]>([
-    { id: 1, username: 'admin_principal', role: 'ADMIN' },
-    { id: 2, username: 'jean_chauffeur', role: 'DRIVER' }, // Role updated to match backend 'Driver' entity
-    { id: 3, username: 'entreprise_dupont', role: 'CLIENT' },
-  ]);
-
+  private usersSignal = signal<User[]>([]);
   readonly users = this.usersSignal.asReadonly();
 
-  // private http = inject(HttpClient);
-  // private apiUrl = `${environment.apiUrl}/users`; // API route is conventional
+  private http = inject(HttpClient);
+  private apiUrl = 'http://localhost:8080/api/users'; // Ajuste si ta route est différente
 
-  /* loadUsers() { ... } */
-
-  addUser(user: User) {
-    // this.http.post<User>(this.apiUrl, user).subscribe(newUser => {
-    //   this.usersSignal.update(users => [...users, newUser]);
-    // });
-    this.usersSignal.update(users => [...users, { ...user, id: Math.floor(Math.random() * 1000) }]); // Mock ID generation
+  loadUsers(): Observable<User[]> {
+    return this.http.get<User[]>(this.apiUrl).pipe(
+      tap((data: User[]) => this.usersSignal.set(data))
+    );
   }
 
-  updateUser(modifiedUser: User) {
-    // this.http.put<User>(`${this.apiUrl}/${modifiedUser.id}`, modifiedUser).subscribe(updatedUser => {
-    //   this.usersSignal.update(users => users.map(u => u.id === updatedUser.id ? updatedUser : u));
-    // });
-    this.usersSignal.update(users => users.map(u => u.id === modifiedUser.id ? modifiedUser : u));
+  ajouterUser(user: Omit<User, 'id'>): Observable<User> {
+    return this.http.post<User>(this.apiUrl, user).pipe(
+      tap((newUser: User) => {
+        this.usersSignal.update(users => [...users, newUser]);
+      })
+    );
   }
 
-  deleteUser(id: number) {
-    // this.http.delete(`${this.apiUrl}/${id}`).subscribe(() => {
-    //   this.usersSignal.update(users => users.filter(u => u.id !== id));
-    // });
-    this.usersSignal.update(users => users.filter(u => u.id !== id));
+  supprimerUser(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
+      tap(() => {
+        this.usersSignal.update(users => users.filter(u => u.id !== id));
+      })
+    );
   }
 }

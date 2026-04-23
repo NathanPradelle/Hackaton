@@ -19,6 +19,7 @@ export interface Camion {
 
 @Component({
   selector: 'app-camions',
+  standalone: true,
   imports: [RouterLink, FormsModule, ToastComponent, ConfirmationModalComponent],
   templateUrl: './camions.component.html'
 })
@@ -27,12 +28,14 @@ export class CamionsComponent implements OnInit {
   private toastService = inject(ToastService);
   private confirmationService = inject(ConfirmationService);
   private modeleService = inject(ModeleService);
-  camions = this.camionService.camions; // On se branche au service
+
+  camions = this.camionService.camions;
   modeles = this.modeleService.modeles;
+
+  // Correction ici : On utilise brand et modelName (anglais)
   modelesMap = computed(() => {
     const map = new Map<number, string>();
-    // J'assume que l'entité Modele a les propriétés: id, marque, nomModele
-    this.modeles().forEach((m: Modele) => map.set(m.id, `${m.marque} ${m.nomModele}`));
+    this.modeles().forEach((m: Modele) => map.set(m.id, `${m.brand} ${m.modelName}`));
     return map;
   });
 
@@ -44,7 +47,7 @@ export class CamionsComponent implements OnInit {
     const term = this.searchTerm().toLowerCase();
     let result = this.camions().filter((c: Camion) => 
       c.licensePlate?.toLowerCase().includes(term) ||
-      c.status.toLowerCase().includes(term)
+      c.status?.toLowerCase().includes(term)
     );
 
     const col = this.sortColumn();
@@ -53,8 +56,6 @@ export class CamionsComponent implements OnInit {
         const valA = a[col];
         const valB = b[col];
         if (valA === valB) return 0;
-        if (valA == null) return 1;
-        if (valB == null) return -1;
         if (valA < valB) return this.sortDirection() === 'asc' ? -1 : 1;
         return this.sortDirection() === 'asc' ? 1 : -1;
       });
@@ -75,7 +76,6 @@ export class CamionsComponent implements OnInit {
   nouveauCamion = signal<Partial<Camion>>({});
 
   ngOnInit(): void {
-    // On charge les données initiales au démarrage du composant.
     this.camionService.loadCamions().subscribe({
       error: () => this.toastService.show('Erreur lors du chargement des camions.', 'error')
     });
@@ -98,21 +98,19 @@ export class CamionsComponent implements OnInit {
         this.isAdding.set(false);
         this.nouveauCamion.set({});
       },
-      error: (err: any) => this.toastService.show(`Erreur: ${err.message || 'Le serveur a rencontré un problème.'}`, 'error')
+      error: (err: any) => this.toastService.show('Erreur de sauvegarde serveur.', 'error')
     };
 
     if (camionData.id) {
-      // Mode édition
       this.camionService.editerCamion(camionData as Camion).subscribe(onSave);
     } else {
-      // Mode ajout : on s'assure de ne pas envoyer d'ID au backend
       const { id, ...newCamion } = camionData;
       this.camionService.ajouterCamion(newCamion as Omit<Camion, 'id'>).subscribe(onSave);
     }
   }
 
   editer(camion: Camion) {
-    this.nouveauCamion.set({ ...camion }); // On copie pour ne pas modifier le tableau en direct
+    this.nouveauCamion.set({ ...camion });
     this.isAdding.set(true);
   }
 
