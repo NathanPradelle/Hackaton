@@ -9,7 +9,7 @@ import '../../features/planning/domain/models/itineraire.dart';
 
 class MockData {
   static final User currentUser = User(
-    id: 1, identifiant: 'j.martin', password: '', role: UserRole.chauffeur,
+    id: 1, identifiant: 'j.martin', password: 'azerty', role: UserRole.chauffeur,
   );
 
   static final Chauffeur currentChauffeur = Chauffeur(
