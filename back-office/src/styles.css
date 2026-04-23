@@ -47,7 +47,8 @@ label {
 
 input[type="text"],
 input[type="password"],
-input[type="number"] {
+input[type="number"],
+select {
   width: 100%;
   padding: 12px 15px;
   margin-bottom: 20px;
@@ -56,11 +57,13 @@ input[type="number"] {
   box-sizing: border-box;
   font-size: 14px;
   transition: border-color 0.2s, box-shadow 0.2s;
+  background-color: #fff;
 }
 
 input[type="text"]:focus,
 input[type="password"]:focus,
-input[type="number"]:focus {
+input[type="number"]:focus,
+select:focus {
   outline: none;
   border-color: #3182ce;
   box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.15);
@@ -91,12 +94,97 @@ button[type="submit"] {
   margin-top: 10px;
 }
 
-/* Style spécifique pour le bouton supprimer dans les tableaux */
-td button:nth-child(2) {
-  background-color: #e53e3e;
+/* 7. Boutons Icônes (Actions Tableau) */
+.action-buttons {
+  display: flex;
+  gap: 8px;
 }
-td button:nth-child(2):hover {
-  background-color: #c53030;
+
+button.icon-btn {
+  background-color: transparent;
+  color: #718096;
+  padding: 6px;
+  width: auto;
+  box-shadow: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+button.icon-btn:hover {
+  transform: scale(1.1);
+}
+
+button.icon-btn.edit:hover {
+  color: #3182ce;
+  background-color: #ebf8ff;
+}
+
+button.icon-btn.delete:hover {
+  color: #e53e3e;
+  background-color: #fed7d7;
+}
+
+/* 8. Modales (Pop-ups) */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: #ffffff;
+  padding: 30px;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 450px;
+  box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+  animation: modalFadeIn 0.2s ease-out;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 9. Tri des colonnes */
+th.sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s;
+}
+
+th.sortable:hover {
+  background-color: #e2e8f0;
+}
+
+/* 10. Pagination */
+.pagination-controls {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  margin-top: 20px;
+  padding: 10px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.pagination-controls button {
+  width: auto;
+  background-color: #edf2f7;
+  color: #4a5568;
+}
+
+.pagination-controls button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
 }
 
 /* 5. Navigation du Dashboard */
