@@ -1,42 +1,48 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { Commande } from './commandes.component';
-// import { HttpClient } from '@angular/common/http';
-// import { environment } from '../../environments/environment';
+import { HttpClient } from '@angular/common/http';
+import { Observable, tap } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class CommandeService {
-  private commandesSignal = signal<Commande[]>([
-    { id_commande: 101, id_client: 3, id_tournee: 1, adresse_texte: '10 rue de la Logistique, Paris', date_voulu: '2026-05-01', plage_horaire: '08:00 - 12:00', prix: 150.50, quantite: 50, statut: 'En préparation' },
-    { id_commande: 102, id_client: 4, adresse_texte: 'ZAC des Entrepôts, Lyon', date_voulu: '2026-05-02', plage_horaire: '14:00 - 18:00', prix: 320.00, quantite: 120, statut: 'En attente' },
-  ]);
-
+  private commandesSignal = signal<Commande[]>([]);
   readonly commandes = this.commandesSignal.asReadonly();
 
-  // private http = inject(HttpClient);
-  // private apiUrl = `${environment.apiUrl}/commandes`;
+  private http = inject(HttpClient);
+  // On pointe vers le bon endpoint backend
+  private apiUrl = 'http://localhost:8080/api/orders';
 
-  /* chargerCommandes() { ... } */
-
-  ajouterCommande(commande: Commande) {
-    // this.http.post<Commande>(this.apiUrl, commande).subscribe(newCmd => {
-    //   this.commandesSignal.update(commandes => [...commandes, newCmd]);
-    // });
-    this.commandesSignal.update(commandes => [...commandes, commande]);
-  }
-
-  editerCommande(commandeModifiee: Commande) {
-    // this.http.put<Commande>(`${this.apiUrl}/${commandeModifiee.id_commande}`, commandeModifiee).subscribe(updatedCmd => {
-    //   this.commandesSignal.update(commandes => commandes.map(c => c.id_commande === updatedCmd.id_commande ? updatedCmd : c));
-    // });
-    this.commandesSignal.update(commandes =>
-      commandes.map(c => c.id_commande === commandeModifiee.id_commande ? commandeModifiee : c)
+  loadCommandes(): Observable<Commande[]> {
+    return this.http.get<Commande[]>(this.apiUrl).pipe(
+      tap((data: Commande[]) => this.commandesSignal.set(data))
     );
   }
 
-  supprimerCommande(id: number) {
-    // this.http.delete(`${this.apiUrl}/${id}`).subscribe(() => {
-    //   this.commandesSignal.update(commandes => commandes.filter(c => c.id_commande !== id));
-    // });
-    this.commandesSignal.update(commandes => commandes.filter(c => c.id_commande !== id));
+  ajouterCommande(commande: Omit<Commande, 'id'>): Observable<Commande> {
+    return this.http.post<Commande>(this.apiUrl, commande).pipe(
+      tap((newCmd: Commande) => {
+        this.commandesSignal.update((commandes: Commande[]) => [...commandes, newCmd]);
+      })
+    );
+  }
+
+  editerCommande(commandeModifiee: Commande): Observable<Commande> {
+    return this.http.put<Commande>(`${this.apiUrl}/${commandeModifiee.id}`, commandeModifiee).pipe(
+      tap((updatedCmd: Commande) => {
+        this.commandesSignal.update((commandes: Commande[]) => 
+          commandes.map((c: Commande) => c.id === updatedCmd.id ? updatedCmd : c)
+        );
+      })
+    );
+  }
+
+  supprimerCommande(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
+      tap(() => {
+        this.commandesSignal.update((commandes: Commande[]) => 
+          commandes.filter((c: Commande) => c.id !== id)
+        );
+      })
+    );
   }
 }

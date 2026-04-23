@@ -14,7 +14,7 @@
 @if (isAdding()) {
   <div class="modal-overlay" (click)="isAdding.set(false)">
     <div class="modal-content" (click)="$event.stopPropagation()">
-      <h3 style="margin-top: 0;">{{ nouvelleCommande().id_commande ? 'Modifier la Commande' : 'Nouvelle Commande' }}</h3>
+      <h3 style="margin-top: 0;">{{ nouvelleCommande().id ? 'Modifier la Commande' : 'Nouvelle Commande' }}</h3>
       <form (ngSubmit)="ajouter()" #commandeForm="ngForm" style="display: flex; flex-direction: column;">
         <div>
           <label>Client</label>
@@ -49,30 +49,30 @@
 <table>
   <thead>
     <tr>
-      <th class="sortable" (click)="sortBy('id_commande')">ID Commande {{ sortColumn() === 'id_commande' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
-      <th class="sortable" (click)="sortBy('id_client')">ID Client {{ sortColumn() === 'id_client' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
-      <th class="sortable" (click)="sortBy('id_tournee')">Tournée {{ sortColumn() === 'id_tournee' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
-      <th class="sortable" (click)="sortBy('adresse_texte')">Adresse {{ sortColumn() === 'adresse_texte' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
-      <th class="sortable" (click)="sortBy('date_voulu')">Date voulue {{ sortColumn() === 'date_voulu' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
-      <th class="sortable" (click)="sortBy('plage_horaire')">Plage horaire {{ sortColumn() === 'plage_horaire' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
-      <th class="sortable" (click)="sortBy('quantite')">Quantité {{ sortColumn() === 'quantite' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
-      <th class="sortable" (click)="sortBy('prix')">Prix {{ sortColumn() === 'prix' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
-      <th class="sortable" (click)="sortBy('statut')">Statut {{ sortColumn() === 'statut' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
+      <th class="sortable" (click)="sortBy('id_commande')">ID Commande {{ sortColumn() === 'id' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
+      <th class="sortable" (click)="sortBy('id_client')">ID Client {{ sortColumn() === 'clientId' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
+      <th class="sortable" (click)="sortBy('id_tournee')">Tournée {{ sortColumn() === 'tripId' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
+      <th class="sortable" (click)="sortBy('adresse_texte')">Adresse {{ sortColumn() === 'addressText' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
+      <th class="sortable" (click)="sortBy('date_voulu')">Date voulue {{ sortColumn() === 'requestedDate' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
+      <th class="sortable" (click)="sortBy('plage_horaire')">Plage horaire {{ sortColumn() === 'timeSlot' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
+      <th class="sortable" (click)="sortBy('quantite')">Quantité {{ sortColumn() === 'quantity' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
+      <th class="sortable" (click)="sortBy('prix')">Prix {{ sortColumn() === 'price' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
+      <th class="sortable" (click)="sortBy('statut')">Statut {{ sortColumn() === 'status' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
       <th>Actions</th>
     </tr>
   </thead>
   <tbody>
-    @for (commande of commandesFiltres(); track commande.id_commande) {
+    @for (commande of commandesFiltres(); track commande.id) {
       <tr>
-        <td>{{ commande.id_commande }}</td>
-        <td>{{ usersMap().get(commande.id_client) || commande.id_client }}</td>
-        <td>{{ commande.id_tournee || 'N/A' }}</td>
-        <td>{{ commande.adresse_texte }}</td>
-        <td>{{ commande.date_voulu | date:'dd/MM/yyyy' }}</td>
-        <td>{{ commande.plage_horaire }}</td>
-        <td>{{ commande.quantite }}</td>
-        <td>{{ commande.prix | currency:'EUR' }}</td>
-        <td>{{ commande.statut }}</td>
+        <td>{{ commande.id }}</td>
+        <td>{{ usersMap().get(commande.clientId) || commande.id_client }}</td>
+        <td>{{ commande.tripId || 'N/A' }}</td>
+        <td>{{ commande.adressText }}</td>
+        <td>{{ commande.requestedDate | date:'dd/MM/yyyy' }}</td>
+        <td>{{ commande.timeSlot }}</td>
+        <td>{{ commande.quantity }}</td>
+        <td>{{ commande.price | currency:'EUR' }}</td>
+        <td>{{ commande.status }}</td>
         <td>
           <div class="action-buttons">
             <button class="icon-btn edit" title="Éditer" (click)="editer(commande)">
