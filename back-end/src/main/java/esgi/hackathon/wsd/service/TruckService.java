@@ -40,4 +40,19 @@ public class TruckService {
     truck.setStatus(TruckStatus.AVAILABLE);
     return truckMapper.toDto(truckRepository.save(truck));
   }
+
+  @Transactional
+  public TruckDto updateTruck(Long id, TruckDto truckDto) {
+    Truck truck = truckRepository.findById(id)
+        .orElseThrow(() -> new RuntimeException("Camion non trouvé : " + id));
+    truck.setLicensePlate(truckDto.licensePlate());
+    truck.setCurrentFuelLevel(truckDto.currentFuelLevel());
+    if (truckDto.status() != null) truck.setStatus(truckDto.status());
+    return truckMapper.toDto(truckRepository.save(truck));
+  }
+
+  @Transactional
+  public void deleteTruck(Long id) {
+    truckRepository.deleteById(id);
+  }
 }

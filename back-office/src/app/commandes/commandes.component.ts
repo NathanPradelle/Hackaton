@@ -7,21 +7,20 @@ import { ToastService } from '../toast/toast.service';
 import { ToastComponent } from '../toast/toast.component';
 import { ConfirmationService } from '../shared/confirmation-modal/confirmation.service';
 import { ConfirmationModalComponent } from '../shared/confirmation-modal/confirmation-modal.component';
-import { UserService } from '../users/user.service';
+import { ClientService } from '../clients/client.service';
 
-// ⚠️ INTERFACE MISE À JOUR POUR MATCHER LE BACKEND (OrderDto)
 export interface Commande {
   id: number;
   clientId: number;
-  tripId?: number;
-  addressText: string;
-  latitude?: number;  // Ajouté depuis le back
-  longitude?: number; // Ajouté depuis le back
-  requestedDate: string;
-  timeSlot: string;
-  price: number;
-  quantity: number;
-  status: string;
+  tourneeId?: number;
+  adresseTexte: string;
+  latitude?: number;
+  longitude?: number;
+  dateVoulu: string;
+  plageHoraire: string;
+  prix: number;
+  quantite: number;
+  statut: string;
 }
 
 @Component({
@@ -33,14 +32,14 @@ export class CommandesComponent implements OnInit {
   private commandeService = inject(CommandeService);
   private toastService = inject(ToastService);
   private confirmationService = inject(ConfirmationService);
-  private userService = inject(UserService);
-  
+  private clientService = inject(ClientService);
+
   commandes = this.commandeService.commandes;
-  clients = computed(() => this.userService.users().filter(u => u.role === 'CLIENT'));
-  
-  usersMap = computed(() => {
+  clients = this.clientService.clients;
+
+  clientsMap = computed(() => {
     const map = new Map<number, string>();
-    this.userService.users().forEach(u => map.set(u.id, u.identifier));
+    this.clientService.clients().forEach(c => map.set(c.id, c.nom));
     return map;
   });
 
@@ -48,12 +47,11 @@ export class CommandesComponent implements OnInit {
   sortColumn = signal<keyof Commande | ''>('');
   sortDirection = signal<'asc' | 'desc'>('asc');
 
-  // ⚠️ MISE À JOUR DES NOMS DE VARIABLES POUR LE FILTRE
   commandesFiltres = computed(() => {
     const term = this.searchTerm().toLowerCase();
-    let result = this.commandes().filter(c => 
-      c.addressText?.toLowerCase().includes(term) ||
-      c.status?.toLowerCase().includes(term) ||
+    let result = this.commandes().filter(c =>
+      c.adresseTexte?.toLowerCase().includes(term) ||
+      c.statut?.toLowerCase().includes(term) ||
       c.clientId?.toString().includes(term)
     );
 
@@ -84,18 +82,17 @@ export class CommandesComponent implements OnInit {
   isAdding = signal(false);
   nouvelleCommande = signal<Partial<Commande>>({});
 
-  // ⚠️ CHARGEMENT DES DONNÉES AU DÉMARRAGE
   ngOnInit(): void {
     this.commandeService.loadCommandes().subscribe({
       error: () => this.toastService.show('Erreur lors du chargement des commandes.', 'error')
     });
+    this.clientService.loadClients().subscribe();
   }
 
-  // ⚠️ MISE À JOUR DE LA LOGIQUE DE SAUVEGARDE AVEC HTTP
   ajouter() {
     const commandeData = this.nouvelleCommande();
-    
-    if (!commandeData.clientId || !commandeData.addressText) {
+
+    if (!commandeData.clientId || !commandeData.adresseTexte) {
       this.toastService.show('Veuillez remplir le client et l\'adresse.', 'error');
       return;
     }
@@ -106,14 +103,12 @@ export class CommandesComponent implements OnInit {
         this.isAdding.set(false);
         this.nouvelleCommande.set({});
       },
-      error: (err: any) => this.toastService.show('Erreur de sauvegarde', 'error')
+      error: () => this.toastService.show('Erreur de sauvegarde', 'error')
     };
 
     if (commandeData.id) {
-      // Édition
       this.commandeService.editerCommande(commandeData as Commande).subscribe(onSave);
     } else {
-      // Ajout
       const { id, ...newCmd } = commandeData;
       this.commandeService.ajouterCommande(newCmd as Omit<Commande, 'id'>).subscribe(onSave);
     }

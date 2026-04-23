@@ -1,9 +1,11 @@
 package esgi.hackathon.wsd.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public record ItineraryDto(
     Long id,
-    Long tripId,
-    Double duration,
-    String constraints,
-    String gpsData
+    @JsonProperty("tourneeId") Long tripId,
+    @JsonProperty("duree") Double duration,
+    @JsonProperty("contrainte") String constraints,
+    @JsonProperty("infoGps") String gpsData
 ) {}

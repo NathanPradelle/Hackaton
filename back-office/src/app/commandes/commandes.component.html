@@ -18,23 +18,27 @@
       <form (ngSubmit)="ajouter()" #commandeForm="ngForm" style="display: flex; flex-direction: column;">
         <div>
           <label>Client</label>
-          <select [(ngModel)]="nouvelleCommande().id_client" name="id_client" required>
-            <option [ngValue]="undefined" disabled selected>Choisir un client</option>
-            @for(client of clients(); track client.id_user) {
-              <option [value]="client.id_user">{{ client.identifiant }}</option>
-            }
-          </select>
+          @if (nouvelleCommande().id) {
+            <input type="text" [value]="clientsMap().get(nouvelleCommande().clientId!)" disabled>
+          } @else {
+            <select [(ngModel)]="nouvelleCommande().clientId" name="clientId" required>
+              <option [ngValue]="undefined" disabled selected>Choisir un client</option>
+              @for(client of clients(); track client.id) {
+                <option [ngValue]="client.id">{{ client.nom }}</option>
+              }
+            </select>
+          }
         </div>
-        <div><label>Adresse</label><input type="text" [(ngModel)]="nouvelleCommande().adresse_texte" name="adresse" required></div>
+        <div><label>Adresse</label><input type="text" [(ngModel)]="nouvelleCommande().adresseTexte" name="adresseTexte" required></div>
         <div>
           <label>Statut</label>
           <select [(ngModel)]="nouvelleCommande().statut" name="statut" required>
             <option [ngValue]="undefined" disabled selected>Choisir un statut</option>
-            <option value="En attente">En attente</option>
-            <option value="En préparation">En préparation</option>
-            <option value="En cours de livraison">En cours de livraison</option>
-            <option value="Livrée">Livrée</option>
-            <option value="Annulée">Annulée</option>
+            <option value="enAttente">En attente</option>
+            <option value="confirmee">Confirmée</option>
+            <option value="enCours">En cours de livraison</option>
+            <option value="livree">Livrée</option>
+            <option value="annulee">Annulée</option>
           </select>
         </div>
         <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
@@ -49,15 +53,15 @@
 <table>
   <thead>
     <tr>
-      <th class="sortable" (click)="sortBy('id_commande')">ID Commande {{ sortColumn() === 'id' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
-      <th class="sortable" (click)="sortBy('id_client')">ID Client {{ sortColumn() === 'clientId' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
-      <th class="sortable" (click)="sortBy('id_tournee')">Tournée {{ sortColumn() === 'tripId' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
-      <th class="sortable" (click)="sortBy('adresse_texte')">Adresse {{ sortColumn() === 'addressText' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
-      <th class="sortable" (click)="sortBy('date_voulu')">Date voulue {{ sortColumn() === 'requestedDate' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
-      <th class="sortable" (click)="sortBy('plage_horaire')">Plage horaire {{ sortColumn() === 'timeSlot' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
-      <th class="sortable" (click)="sortBy('quantite')">Quantité {{ sortColumn() === 'quantity' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
-      <th class="sortable" (click)="sortBy('prix')">Prix {{ sortColumn() === 'price' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
-      <th class="sortable" (click)="sortBy('statut')">Statut {{ sortColumn() === 'status' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
+      <th class="sortable" (click)="sortBy('id')">ID {{ sortColumn() === 'id' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
+      <th class="sortable" (click)="sortBy('clientId')">Client {{ sortColumn() === 'clientId' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
+      <th class="sortable" (click)="sortBy('tourneeId')">Tournée {{ sortColumn() === 'tourneeId' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
+      <th class="sortable" (click)="sortBy('adresseTexte')">Adresse {{ sortColumn() === 'adresseTexte' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
+      <th class="sortable" (click)="sortBy('dateVoulu')">Date voulue {{ sortColumn() === 'dateVoulu' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
+      <th class="sortable" (click)="sortBy('plageHoraire')">Plage horaire {{ sortColumn() === 'plageHoraire' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
+      <th class="sortable" (click)="sortBy('quantite')">Quantité {{ sortColumn() === 'quantite' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
+      <th class="sortable" (click)="sortBy('prix')">Prix {{ sortColumn() === 'prix' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
+      <th class="sortable" (click)="sortBy('statut')">Statut {{ sortColumn() === 'statut' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
       <th>Actions</th>
     </tr>
   </thead>
@@ -65,20 +69,20 @@
     @for (commande of commandesFiltres(); track commande.id) {
       <tr>
         <td>{{ commande.id }}</td>
-        <td>{{ usersMap().get(commande.clientId) || commande.id_client }}</td>
-        <td>{{ commande.tripId || 'N/A' }}</td>
-        <td>{{ commande.adressText }}</td>
-        <td>{{ commande.requestedDate | date:'dd/MM/yyyy' }}</td>
-        <td>{{ commande.timeSlot }}</td>
-        <td>{{ commande.quantity }}</td>
-        <td>{{ commande.price | currency:'EUR' }}</td>
-        <td>{{ commande.status }}</td>
+        <td>{{ clientsMap().get(commande.clientId) || commande.clientId }}</td>
+        <td>{{ commande.tourneeId || 'N/A' }}</td>
+        <td>{{ commande.adresseTexte }}</td>
+        <td>{{ commande.dateVoulu | date:'dd/MM/yyyy' }}</td>
+        <td>{{ commande.plageHoraire }}</td>
+        <td>{{ commande.quantite }}</td>
+        <td>{{ commande.prix | currency:'EUR' }}</td>
+        <td>{{ commande.statut }}</td>
         <td>
           <div class="action-buttons">
             <button class="icon-btn edit" title="Éditer" (click)="editer(commande)">
               <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
             </button>
-            <button class="icon-btn delete" title="Supprimer" (click)="supprimer(commande.id_commande)">
+            <button class="icon-btn delete" title="Supprimer" (click)="supprimer(commande.id)">
               <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
             </button>
           </div>

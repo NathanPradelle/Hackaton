@@ -1,3 +1,11 @@
 package esgi.hackathon.wsd.enums;
 
-public enum OrderStatus { PENDING, ASSIGNED, PICKED_UP, DELIVERED, CANCELLED }
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public enum OrderStatus {
+    @JsonProperty("enAttente") PENDING,
+    @JsonProperty("confirmee") ASSIGNED,
+    @JsonProperty("enCours") PICKED_UP,
+    @JsonProperty("livree") DELIVERED,
+    @JsonProperty("annulee") CANCELLED
+}

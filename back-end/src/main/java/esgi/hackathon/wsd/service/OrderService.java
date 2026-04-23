@@ -48,4 +48,24 @@ public class OrderService {
         .map(orderMapper::toDto)
         .orElseThrow(() -> new RuntimeException("Commande non trouvée : " + id));
   }
+
+  @Transactional
+  public OrderDto updateOrder(Long id, OrderDto orderDto) {
+    Order order = orderRepository.findById(id)
+        .orElseThrow(() -> new RuntimeException("Commande non trouvée : " + id));
+    order.setAddressText(orderDto.addressText());
+    order.setLatitude(orderDto.latitude());
+    order.setLongitude(orderDto.longitude());
+    order.setRequestedDate(orderDto.requestedDate());
+    order.setTimeSlot(orderDto.timeSlot());
+    order.setPrice(orderDto.price());
+    order.setQuantity(orderDto.quantity());
+    if (orderDto.status() != null) order.setStatus(orderDto.status());
+    return orderMapper.toDto(orderRepository.save(order));
+  }
+
+  @Transactional
+  public void deleteOrder(Long id) {
+    orderRepository.deleteById(id);
+  }
 }

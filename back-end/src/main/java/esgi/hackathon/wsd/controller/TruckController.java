@@ -1,9 +1,9 @@
 package esgi.hackathon.wsd.controller;
 
-
 import esgi.hackathon.wsd.dto.TruckDto;
 import esgi.hackathon.wsd.service.TruckService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,5 +25,21 @@ public class TruckController {
   @GetMapping("/available")
   public ResponseEntity<List<TruckDto>> getAvailableTrucks() {
     return ResponseEntity.ok(truckService.getAvailableTrucks());
+  }
+
+  @PostMapping
+  public ResponseEntity<TruckDto> createTruck(@RequestBody TruckDto truckDto) {
+    return new ResponseEntity<>(truckService.createTruck(truckDto), HttpStatus.CREATED);
+  }
+
+  @PutMapping("/{id}")
+  public ResponseEntity<TruckDto> updateTruck(@PathVariable Long id, @RequestBody TruckDto truckDto) {
+    return ResponseEntity.ok(truckService.updateTruck(id, truckDto));
+  }
+
+  @DeleteMapping("/{id}")
+  public ResponseEntity<Void> deleteTruck(@PathVariable Long id) {
+    truckService.deleteTruck(id);
+    return ResponseEntity.ok().build();
   }
 }

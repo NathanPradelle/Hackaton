@@ -9,7 +9,7 @@ export class UserService {
   readonly users = this.usersSignal.asReadonly();
 
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8080/api/users'; // Ajuste si ta route est différente
+  private apiUrl = 'http://localhost:8080/api/users';
 
   loadUsers(): Observable<User[]> {
     return this.http.get<User[]>(this.apiUrl).pipe(
@@ -25,6 +25,14 @@ export class UserService {
     );
   }
 
+  editerUser(user: User): Observable<User> {
+    return this.http.put<User>(`${this.apiUrl}/${user.id}`, user).pipe(
+      tap((updated: User) => {
+        this.usersSignal.update(users => users.map(u => u.id === updated.id ? updated : u));
+      })
+    );
+  }
+
   supprimerUser(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
       tap(() => {
@@ -32,6 +40,4 @@ export class UserService {
       })
     );
   }
-
-  
 }

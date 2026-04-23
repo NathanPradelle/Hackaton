@@ -8,6 +8,6 @@ enum StatutTournee { planifiee, enCours, terminee, annulee }
 
 enum StatutCamion { disponible, enCours, maintenance, horsService }
 
-enum TypeEssence { diesel, essence, electrique }
+enum TypeEssence { diesel, essence, electrique, gnv }
 
 enum PlageHoraire { matin, apresMidi, journee }

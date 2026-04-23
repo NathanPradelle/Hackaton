@@ -1,13 +1,14 @@
 package esgi.hackathon.wsd.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import esgi.hackathon.wsd.enums.TripStatus;
 import java.time.LocalDate;
 
 public record TripDto(
     Long id,
-    Long driverId,
-    Long truckId,
+    @JsonProperty("chauffeurId") Long driverId,
+    @JsonProperty("camionId") Long truckId,
     LocalDate date,
-    String timeSlot,
-    TripStatus status
+    @JsonProperty("plageHoraire") String timeSlot,
+    @JsonProperty("statut") TripStatus status
 ) {}

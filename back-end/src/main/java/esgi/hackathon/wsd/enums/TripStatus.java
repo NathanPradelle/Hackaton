@@ -1,3 +1,10 @@
 package esgi.hackathon.wsd.enums;
 
-public enum TripStatus { PLANNED, IN_PROGRESS, COMPLETED, CANCELLED }
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public enum TripStatus {
+    @JsonProperty("planifiee") PLANNED,
+    @JsonProperty("enCours") IN_PROGRESS,
+    @JsonProperty("terminee") COMPLETED,
+    @JsonProperty("annulee") CANCELLED
+}

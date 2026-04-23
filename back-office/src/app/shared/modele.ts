@@ -1,6 +1,9 @@
 export interface Modele {
   id: number;
-  brand: string;         // Était 'marque'
-  modelName: string;     // Était 'nomModele'
-  payloadCapacity: number; // Était 'capaciteCharge'
+  marque: string;
+  nomModele: string;
+  capacite: number;
+  consommationEssence: number;
+  typeEssence: string;
+  capaciteReservoir: number;
 }

@@ -18,24 +18,25 @@
       <form (ngSubmit)="ajouter()" #camionForm="ngForm" style="display: flex; flex-direction: column;">
         <div>
           <label>Modèle</label>
-          <select [(ngModel)]="nouveauCamion().modelId" name="modelId" required>
+          <select [(ngModel)]="nouveauCamion().modeleId" name="modeleId" required>
             <option [ngValue]="undefined" disabled selected>Choisir un modèle</option>
             @for(modele of modeles(); track modele.id) {
               <option [value]="modele.id">{{ modele.marque }} {{ modele.nomModele }}</option>
             }
           </select>
         </div>
-        <div><label>Plaque</label><input type="text" [(ngModel)]="nouveauCamion().licensePlate" name="plaque" required></div>
+        <div><label>Plaque</label><input type="text" [(ngModel)]="nouveauCamion().plaqueImmatriculation" name="plaque" required></div>
         <div>
           <label>Statut</label>
-          <select [(ngModel)]="nouveauCamion().status" name="statut" required>
+          <select [(ngModel)]="nouveauCamion().statut" name="statut" required>
             <option [ngValue]="undefined" disabled selected>Choisir un statut</option>
-            <option value="Disponible">Disponible</option>
-            <option value="En tournée">En tournée</option>
-            <option value="En maintenance">En maintenance</option>
+            <option value="disponible">Disponible</option>
+            <option value="enCours">En tournée</option>
+            <option value="maintenance">En maintenance</option>
+            <option value="horsService">Hors service</option>
           </select>
         </div>
-        <div><label>Essence (L)</label><input type="number" min="0" [(ngModel)]="nouveauCamion().currentFuelLevel" name="essence" required></div>
+        <div><label>Essence (L)</label><input type="number" min="0" [(ngModel)]="nouveauCamion().quantiteEssence" name="essence" required></div>
         <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
           <button type="button" (click)="isAdding.set(false)" style="background: #e2e8f0; color: #4a5568; width: auto; margin-top: 0;">Annuler</button>
           <button type="submit" [disabled]="!camionForm.valid" [style.opacity]="camionForm.valid ? '1' : '0.5'" style="width: auto; margin-top: 0;">Enregistrer</button>
@@ -48,11 +49,11 @@
 <table>
   <thead>
     <tr>
-      <th class="sortable" (click)="sortBy('id')">ID Camion {{ sortColumn() === 'id' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
-      <th class="sortable" (click)="sortBy('modelId')">ID Modèle {{ sortColumn() === 'modelId' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
-      <th class="sortable" (click)="sortBy('licensePlate')">Plaque {{ sortColumn() === 'licensePlate' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
-      <th class="sortable" (click)="sortBy('status')">Statut {{ sortColumn() === 'status' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
-      <th class="sortable" (click)="sortBy('currentFuelLevel')">Essence (L) {{ sortColumn() === 'currentFuelLevel' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
+      <th class="sortable" (click)="sortBy('id')">ID {{ sortColumn() === 'id' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
+      <th class="sortable" (click)="sortBy('modeleId')">Modèle {{ sortColumn() === 'modeleId' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
+      <th class="sortable" (click)="sortBy('plaqueImmatriculation')">Plaque {{ sortColumn() === 'plaqueImmatriculation' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
+      <th class="sortable" (click)="sortBy('statut')">Statut {{ sortColumn() === 'statut' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
+      <th class="sortable" (click)="sortBy('quantiteEssence')">Essence (L) {{ sortColumn() === 'quantiteEssence' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
       <th>Actions</th>
     </tr>
   </thead>
@@ -60,10 +61,10 @@
     @for (camion of camionsFiltres(); track camion.id) {
       <tr>
         <td>{{ camion.id }}</td>
-        <td>{{ modelesMap().get(camion.modelId) || camion.modelId }}</td>
-        <td>{{ camion.licensePlate }}</td>
-        <td>{{ camion.status }}</td>
-        <td>{{ camion.currentFuelLevel }}</td>
+        <td>{{ modelesMap().get(camion.modeleId) || camion.modeleId }}</td>
+        <td>{{ camion.plaqueImmatriculation }}</td>
+        <td>{{ camion.statut }}</td>
+        <td>{{ camion.quantiteEssence }}</td>
         <td>
           <div class="action-buttons">
             <button class="icon-btn edit" title="Éditer" (click)="editer(camion)">

@@ -11,13 +11,11 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "*") // Autorise Angular à communiquer avec le Back
+@CrossOrigin(origins = "*")
 public class UserController {
 
     @Autowired
     private UserService userService;
-
-    // --- Gestion des Utilisateurs ---
 
     @GetMapping("/users")
     public List<UserDto> getAllUsers() {
@@ -29,22 +27,24 @@ public class UserController {
         return userService.save(userDto);
     }
 
+    @PutMapping("/users/{id}")
+    public ResponseEntity<UserDto> updateUser(@PathVariable Long id, @RequestBody UserDto userDto) {
+        return ResponseEntity.ok(userService.update(id, userDto));
+    }
+
     @DeleteMapping("/users/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.deleteById(id);
         return ResponseEntity.ok().build();
     }
 
-    // --- Authentification ---
-    // Cet endpoint correspond à ce que ton AuthService Angular appelle
-    
     @PostMapping("/auth/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> credentials) {
         String identifier = credentials.get("identifier");
         String password = credentials.get("password");
 
         UserDto user = userService.login(identifier, password);
-        
+
         if (user != null) {
             return ResponseEntity.ok(user);
         } else {

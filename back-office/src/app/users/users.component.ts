@@ -1,33 +1,29 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { UserService } from './user.service';
+import { User } from './user.model';
 import { ToastService } from '../toast/toast.service';
 import { ToastComponent } from '../toast/toast.component';
 import { ConfirmationService } from '../shared/confirmation-modal/confirmation.service';
 import { ConfirmationModalComponent } from '../shared/confirmation-modal/confirmation-modal.component';
-
-export interface User {
-  id_user: number;
-  identifiant: string;
-  role: string;
-  nom?: string;
-  prenom?: string;
-  numero_permis?: string;
-  numero_siret?: string;
-  ville?: string;
-}
 
 @Component({
   selector: 'app-users',
   imports: [RouterLink, FormsModule, ToastComponent, ConfirmationModalComponent],
   templateUrl: './users.component.html'
 })
-export class UsersComponent {
+export class UsersComponent implements OnInit {
   private userService = inject(UserService);
   private toastService = inject(ToastService);
   private confirmationService = inject(ConfirmationService);
   users = this.userService.users;
+
+  ngOnInit(): void {
+    this.userService.loadUsers().subscribe({
+      error: () => this.toastService.show('Erreur lors du chargement des utilisateurs.', 'error')
+    });
+  }
 
   searchTerm = signal('');
   sortColumn = signal<keyof User | ''>('');
@@ -35,8 +31,8 @@ export class UsersComponent {
 
   usersFiltres = computed(() => {
     const term = this.searchTerm().toLowerCase();
-    let result = this.users().filter(u => 
-      u.identifier.toLowerCase().includes(term) ||
+    let result = this.users().filter(u =>
+      u.identifiant.toLowerCase().includes(term) ||
       u.role.toLowerCase().includes(term)
     );
 
@@ -69,26 +65,26 @@ export class UsersComponent {
 
   ajouter() {
     const user = this.nouveauUser() as User;
-    if (user.identifiant && user.role) {
-      // Nettoyage des champs inutiles selon le rôle
-      if (user.role === 'ADMIN') {
-        delete user.nom; delete user.prenom; delete user.numero_permis; delete user.numero_siret; delete user.ville;
-      } else if (user.role === 'CHAUFFEUR') {
-        delete user.numero_siret; delete user.ville;
-      } else if (user.role === 'CLIENT') {
-        delete user.prenom; delete user.numero_permis;
-      }
-
-      if (user.id_user) {
-        this.userService.editerUser(user);
+    if (user.identifiant && user.role && (user.id || user.motDePasse)) {
+      if (user.id) {
+        this.userService.editerUser(user).subscribe({
+          next: () => {
+            this.toastService.show('Utilisateur modifié avec succès');
+            this.isAdding.set(false);
+            this.nouveauUser.set({});
+          },
+          error: () => this.toastService.show('Erreur lors de la modification', 'error')
+        });
       } else {
-        user.id_user = Math.floor(Math.random() * 1000) + 4;
-        this.userService.ajouterUser(user);
+        this.userService.ajouterUser(user).subscribe({
+          next: () => {
+            this.toastService.show('Utilisateur ajouté avec succès');
+            this.isAdding.set(false);
+            this.nouveauUser.set({});
+          },
+          error: () => this.toastService.show('Erreur lors de la création', 'error')
+        });
       }
-      this.toastService.show('Utilisateur enregistré avec succès');
-      
-      this.isAdding.set(false);
-      this.nouveauUser.set({});
     }
   }
 
@@ -99,8 +95,10 @@ export class UsersComponent {
 
   supprimer(id: number) {
     this.confirmationService.show('Êtes-vous sûr de vouloir supprimer cet utilisateur ?', () => {
-      this.userService.supprimerUser(id);
-      this.toastService.show('Utilisateur supprimé', 'success');
+      this.userService.supprimerUser(id).subscribe({
+        next: () => this.toastService.show('Utilisateur supprimé', 'success'),
+        error: () => this.toastService.show('Erreur lors de la suppression', 'error')
+      });
     });
   }
 }

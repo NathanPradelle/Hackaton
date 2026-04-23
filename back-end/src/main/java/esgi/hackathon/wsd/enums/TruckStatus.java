@@ -1,3 +1,10 @@
 package esgi.hackathon.wsd.enums;
 
-public enum TruckStatus { AVAILABLE, IN_MAINTENANCE, BUSY }
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public enum TruckStatus {
+    @JsonProperty("disponible") AVAILABLE,
+    @JsonProperty("maintenance") IN_MAINTENANCE,
+    @JsonProperty("enCours") BUSY,
+    @JsonProperty("horsService") OUT_OF_SERVICE
+}

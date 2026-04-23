@@ -1,3 +1,9 @@
 package esgi.hackathon.wsd.enums;
 
-public enum UserRole { ADMIN, DRIVER, CLIENT }
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public enum UserRole {
+    @JsonProperty("admin") ADMIN,
+    @JsonProperty("chauffeur") DRIVER,
+    @JsonProperty("client") CLIENT
+}
