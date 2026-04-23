@@ -1,22 +1,106 @@
 <div class="min-h-screen bg-slate-100 px-4 py-10">
-  <div class="mx-auto max-w-5xl">
-    <div class="mb-4">
-      <button (click)="goBack()" class="inline-flex items-center gap-2 text-sm font-medium text-slate-600 transition hover:text-slate-900">
-        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Retour à l'accueil
-      </button>
-    </div>
-
-    <div class="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-slate-200">
-      <div class="flex items-start gap-3">
-        <svg class="mt-1 h-6 w-6 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h12" stroke-linecap="round"/></svg>
-        <div>
-          <h1 class="text-2xl font-bold text-slate-800">Commandes precedentes</h1>
-          <p class="mt-2 text-sm text-slate-600">
-            L'historique des commandes sera affiche ici des que l'API est branchee.
-          </p>
+    <div class="mx-auto max-w-5xl">
+        <div class="mb-4">
+            <button (click)="goBack()" class="inline-flex items-center gap-2 text-sm font-medium text-slate-600 transition hover:text-slate-900">
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Retour a l'accueil
+            </button>
         </div>
-      </div>
+        <div class="mb-6 rounded-2xl bg-gradient-to-r from-indigo-600 via-violet-600 to-purple-600 p-6 text-white shadow-lg">
+            <svg class="mt-1 h-6 w-6 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 12h18M3 6h18M3 18h12" stroke-linecap="round"/>
+            </svg>
+            <div>
+                <h1 class="text-2xl font-bold tracking-tight">Commandes precedentes</h1>
+                <p class="mt-2 text-sm text-white/90">
+                    Historique de vos commandes.
+                </p>
+            </div>
+        </div>
+        <div class="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-slate-200">
+            <div>
+                <div class="mb-6">
+                    <div>
+                        <label for="searchOrders" class="mb-1 block text-sm font-medium text-slate-700">Recherche</label>
+                        <input
+                            id="searchOrders"
+                            type="text"
+                            [(ngModel)]="searchTerm"
+                            placeholder="Rechercher par numero, date ou statut"
+                            class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100" />
+                    </div>
+                </div>
+
+                <div *ngIf="!hasOrders" class="rounded-xl border border-slate-200 bg-slate-50 p-8 text-center">
+                    <p class="text-base font-semibold text-slate-800">Vous n'avez pas encore passe de commande.</p>
+                    <p class="mt-2 text-sm text-slate-600">Quand vous passerez une commande, elle apparaitra ici.</p>
+                </div>
+
+                <div *ngIf="hasOrders && !hasFilteredResults" class="rounded-xl border border-amber-200 bg-amber-50 p-6 text-center">
+                    <p class="text-sm font-semibold text-amber-800">Aucun resultat pour votre recherche.</p>
+                    <p class="mt-1 text-xs text-amber-700">Essayez un autre numero, une autre date ou un autre statut.</p>
+                </div>
+
+                <div class="overflow-x-auto" *ngIf="hasFilteredResults">
+                    <table class="min-w-full divide-y divide-slate-200">
+                        <thead>
+                        <tr>
+                            <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-slate-900 sm:pl-0">
+                                <button type="button" (click)="setSort('id')" class="inline-flex items-center gap-1 hover:text-indigo-600">
+                                    Commande Numero
+                                    <span class="text-xs" [class.text-indigo-600]="isSorted('id')">{{ isSorted('id') ? (sortDirection === 'asc' ? '▲' : '▼') : '↕' }}</span>
+                                </button>
+                            </th>
+                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">
+                                <button type="button" (click)="setSort('deliveryDate')" class="inline-flex items-center gap-1 hover:text-indigo-600">
+                                    Date livraison
+                                    <span class="text-xs" [class.text-indigo-600]="isSorted('deliveryDate')">{{ isSorted('deliveryDate') ? (sortDirection === 'asc' ? '▲' : '▼') : '↕' }}</span>
+                                </button>
+                            </th>
+                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">
+                                <button type="button" (click)="setSort('price')" class="inline-flex items-center gap-1 hover:text-indigo-600">
+                                    Prix
+                                    <span class="text-xs" [class.text-indigo-600]="isSorted('price')">{{ isSorted('price') ? (sortDirection === 'asc' ? '▲' : '▼') : '↕' }}</span>
+                                </button>
+                            </th>
+                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">
+                                <button type="button" (click)="setSort('quantity')" class="inline-flex items-center gap-1 hover:text-indigo-600">
+                                    Quantite
+                                    <span class="text-xs" [class.text-indigo-600]="isSorted('quantity')">{{ isSorted('quantity') ? (sortDirection === 'asc' ? '▲' : '▼') : '↕' }}</span>
+                                </button>
+                            </th>
+                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">
+                                <button type="button" (click)="setSort('status')" class="inline-flex items-center gap-1 hover:text-indigo-600">
+                                    Statut
+                                    <span class="text-xs" [class.text-indigo-600]="isSorted('status')">{{ isSorted('status') ? (sortDirection === 'asc' ? '▲' : '▼') : '↕' }}</span>
+                                </button>
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200">
+                        <tr *ngFor="let order of displayedOrders">
+                            <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-slate-900 sm:pl-0">
+                                {{ order.id }}
+                            </td>
+                            <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">{{ order.deliveryDate }}</td>
+                            <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">{{ order.price }} €</td>
+                            <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">{{ order.quantity }}</td>
+                            <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
+                                    <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset" [ngClass]="{
+                                        'bg-yellow-50 text-yellow-800 ring-yellow-600/20': order.status === 'PENDING',
+                                        'bg-green-50 text-green-700 ring-green-600/20': order.status === 'DELIVERED',
+                                        'bg-red-50 text-red-700 ring-red-600/10': order.status === 'CANCELLED'
+                                        }">
+                                    {{ getStatusLabel(order.status) }}
+                                    </span>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
