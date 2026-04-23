@@ -3,7 +3,7 @@
 		<div class="mb-4">
 			<button (click)="goBack()" class="inline-flex items-center gap-2 text-sm font-medium text-slate-600 transition hover:text-slate-900">
 				<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"/></svg>
-				Page d'accueil
+        Retour a l'accueil
 			</button>
 		</div>
 
@@ -14,130 +14,97 @@
 				</svg>
 				<div>
 					<h1 class="text-2xl font-bold tracking-tight">Passer une commande</h1>
-					<p class="mt-2 text-sm text-white/90">
-						Creez une commande client a destination de votre warehouse.
-					</p>
 				</div>
 			</div>
 		</div>
 
 		<div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 sm:p-8">
 			<form [formGroup]="orderForm" (ngSubmit)="onSubmit()" class="grid gap-5 sm:grid-cols-2">
-				<div class="space-y-1">
-					<label for="warehouse" class="block text-sm font-medium text-slate-700">Warehouse</label>
-					<div class="relative">
-						<span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-							<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10 12 4l9 6v10H3V10Z" stroke-linejoin="round"/></svg>
-						</span>
-						<input
-							id="warehouse"
-							type="text"
-							formControlName="warehouse"
-							placeholder="Ex: Warehouse Paris Nord"
-							class="w-full rounded-lg border py-2.5 pl-10 pr-3 text-sm outline-none transition focus:ring-4"
-							[ngClass]="isControlInvalid('warehouse') ? 'border-red-400 focus:border-red-400 focus:ring-red-100' : 'border-slate-300 focus:border-indigo-500 focus:ring-indigo-100'" />
-					</div>
-					<small class="block text-xs text-red-600" *ngIf="isControlInvalid('warehouse')">Le warehouse est obligatoire.</small>
-				</div>
+                <div class="space-y-1 sm:col-span-2">
+                    <label for="address" class="block text-sm font-medium text-slate-700">Adresse</label>
+                    <div class="relative">
+                        <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+                        </span>
+                        <input
+                            id="address"
+                            type="text"
+                            formControlName="address"
+                            placeholder="Ex: 123 rue de Paris, 75001 Paris"
+                            class="w-full rounded-lg border py-2.5 pl-10 pr-3 text-sm outline-none transition focus:ring-4"
+                            [ngClass]="isControlInvalid('address') ? 'border-red-400 focus:border-red-400 focus:ring-red-100' : 'border-slate-300 focus:border-indigo-500 focus:ring-indigo-100'" />
+                    </div>
+                    <small class="block text-xs text-red-600" *ngIf="isControlInvalid('address')">L'adresse est obligatoire (min 5 caractères).</small>
+                </div>
 
-				<div class="space-y-1">
-					<label for="productName" class="block text-sm font-medium text-slate-700">Produit</label>
-					<div class="relative">
-						<span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-							<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16v10H4z"/><path d="M9 7V5h6v2"/></svg>
-						</span>
-						<input
-							id="productName"
-							type="text"
-							formControlName="productName"
-							placeholder="Ex: Palette Eau"
-							class="w-full rounded-lg border py-2.5 pl-10 pr-3 text-sm outline-none transition focus:ring-4"
-							[ngClass]="isControlInvalid('productName') ? 'border-red-400 focus:border-red-400 focus:ring-red-100' : 'border-slate-300 focus:border-indigo-500 focus:ring-indigo-100'" />
-					</div>
-					<small class="block text-xs text-red-600" *ngIf="isControlInvalid('productName')">Le nom du produit est obligatoire (min 2 caracteres).</small>
-				</div>
+                <div class="space-y-1">
+                    <label for="requestedDate" class="block text-sm font-medium text-slate-700">Date voulue</label>
+                    <div class="relative">
+                        <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
+                        </span>
+                        <input
+                            id="requestedDate"
+                            type="date"
+                            formControlName="requestedDate"
+                            class="w-full rounded-lg border py-2.5 pl-10 pr-3 text-sm outline-none transition focus:ring-4"
+                            [ngClass]="isControlInvalid('requestedDate') ? 'border-red-400 focus:border-red-400 focus:ring-red-100' : 'border-slate-300 focus:border-indigo-500 focus:ring-indigo-100'" />
+                    </div>
+                    <small class="block text-xs text-red-600" *ngIf="isControlInvalid('requestedDate')">La date voulue est obligatoire.</small>
+                </div>
 
-				<div class="space-y-1">
-					<label for="quantity" class="block text-sm font-medium text-slate-700">Quantite</label>
-					<div class="relative">
-						<span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-							<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
-						</span>
-						<input
-							id="quantity"
-							type="number"
-							min="1"
-							formControlName="quantity"
-							class="w-full rounded-lg border py-2.5 pl-10 pr-3 text-sm outline-none transition focus:ring-4"
-							[ngClass]="isControlInvalid('quantity') ? 'border-red-400 focus:border-red-400 focus:ring-red-100' : 'border-slate-300 focus:border-indigo-500 focus:ring-indigo-100'" />
-					</div>
-					<small class="block text-xs text-red-600" *ngIf="isControlInvalid('quantity')">La quantite doit etre superieure a 0.</small>
-				</div>
+                <div class="space-y-1">
+                    <label for="timeSlot" class="block text-sm font-medium text-slate-700">Plage horaire</label>
+                    <div class="relative">
+                        <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+                        </span>
+                        <select
+                            id="timeSlot"
+                            formControlName="timeSlot"
+                            class="w-full rounded-lg border bg-white py-2.5 pl-10 pr-3 text-sm outline-none transition focus:ring-4"
+                            [ngClass]="isControlInvalid('timeSlot') ? 'border-red-400 focus:border-red-400 focus:ring-red-100' : 'border-slate-300 focus:border-indigo-500 focus:ring-indigo-100'">
+                            <option value="" disabled>Choisir une plage horaire</option>
+                            <option value="08:00-10:00">08:00 - 10:00</option>
+                            <option value="10:00-12:00">10:00 - 12:00</option>
+                            <option value="14:00-16:00">14:00 - 16:00</option>
+                            <option value="16:00-18:00">16:00 - 18:00</option>
+                        </select>
+                    </div>
+                    <small class="block text-xs text-red-600" *ngIf="isControlInvalid('timeSlot')">La plage horaire est obligatoire.</small>
+                </div>
 
-				<div class="space-y-1">
-					<label for="requestedDate" class="block text-sm font-medium text-slate-700">Date souhaitee</label>
-					<div class="relative">
-						<span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-							<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
-						</span>
-						<input
-							id="requestedDate"
-							type="date"
-							formControlName="requestedDate"
-							class="w-full rounded-lg border py-2.5 pl-10 pr-3 text-sm outline-none transition focus:ring-4"
-							[ngClass]="isControlInvalid('requestedDate') ? 'border-red-400 focus:border-red-400 focus:ring-red-100' : 'border-slate-300 focus:border-indigo-500 focus:ring-indigo-100'" />
-					</div>
-					<small class="block text-xs text-red-600" *ngIf="isControlInvalid('requestedDate')">La date est obligatoire.</small>
-				</div>
+                <div class="space-y-1 sm:col-span-2">
+                    <label for="quantity" class="block text-sm font-medium text-slate-700">Quantité</label>
+                    <div class="relative">
+                        <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
+                        </span>
+                        <input
+                            id="quantity"
+                            type="number"
+                            min="1"
+                            formControlName="quantity"
+                            class="w-full rounded-lg border py-2.5 pl-10 pr-3 text-sm outline-none transition focus:ring-4"
+                            [ngClass]="isControlInvalid('quantity') ? 'border-red-400 focus:border-red-400 focus:ring-red-100' : 'border-slate-300 focus:border-indigo-500 focus:ring-indigo-100'" />
+                    </div>
+                    <small class="block text-xs text-red-600" *ngIf="isControlInvalid('quantity')">La quantité minimal est 1.</small>
+                </div>
 
-				<div class="space-y-1">
-					<label for="deliveryCity" class="block text-sm font-medium text-slate-700">Ville de livraison</label>
-					<div class="relative">
-						<span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-							<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg>
-						</span>
-						<input
-							id="deliveryCity"
-							type="text"
-							formControlName="deliveryCity"
-							placeholder="Ex: Lyon"
-							class="w-full rounded-lg border py-2.5 pl-10 pr-3 text-sm outline-none transition focus:ring-4"
-							[ngClass]="isControlInvalid('deliveryCity') ? 'border-red-400 focus:border-red-400 focus:ring-red-100' : 'border-slate-300 focus:border-indigo-500 focus:ring-indigo-100'" />
-					</div>
-					<small class="block text-xs text-red-600" *ngIf="isControlInvalid('deliveryCity')">La ville est obligatoire (min 2 caracteres).</small>
-				</div>
-
-				<div class="space-y-1 sm:col-span-2">
-					<label for="comment" class="block text-sm font-medium text-slate-700">Details de commande</label>
-					<div class="relative">
-						<span class="pointer-events-none absolute left-3 top-3 text-slate-400">
-							<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>
-						</span>
-						<textarea
-							id="comment"
-							rows="4"
-							formControlName="comment"
-							placeholder="Ex: Livraison palette complete avant 10h"
-							class="w-full rounded-lg border py-2.5 pl-10 pr-3 text-sm outline-none transition focus:ring-4"
-							[ngClass]="isControlInvalid('comment') ? 'border-red-400 focus:border-red-400 focus:ring-red-100' : 'border-slate-300 focus:border-indigo-500 focus:ring-indigo-100'"></textarea>
-					</div>
-					<small class="block text-xs text-red-600" *ngIf="isControlInvalid('comment')">Le detail est obligatoire (min 5 caracteres).</small>
-				</div>
-
-				<div class="sm:col-span-2">
-					<button
-						type="submit"
-						[disabled]="loading"
-						class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-70">
-						<svg *ngIf="!loading" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M12 3l9 9-9 9" stroke-linecap="round" stroke-linejoin="round"/></svg>
-						<span *ngIf="!loading">Envoyer la commande</span>
-						<span *ngIf="loading" class="inline-flex items-center gap-2">
-							<span class="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white"></span>
-							Envoi en cours...
-						</span>
-					</button>
-				</div>
-			</form>
+                <div class="sm:col-span-2">
+                    <button
+                        type="submit"
+                        [disabled]="loading"
+                        class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-70">
+                        <svg *ngIf="!loading" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M12 3l9 9-9 9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <span *ngIf="!loading">Envoyer la commande</span>
+                        <span *ngIf="loading" class="inline-flex items-center gap-2">
+                            <span class="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white"></span>
+                            Envoi en cours...
+                        </span>
+                    </button>
+                </div>
+            </form>
 		</div>
 	</div>
 

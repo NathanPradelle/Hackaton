@@ -29,10 +29,9 @@ export class CreateOrder implements OnDestroy {
 
     constructor(private fb: FormBuilder, private router: Router) {
         this.orderForm = this.fb.group({
-            addressText: ['', [Validators.required, Validators.minLength(5)]],
+            address: ['', [Validators.required, Validators.minLength(5)]],
             requestedDate: ['', [Validators.required]],
             timeSlot: ['', [Validators.required]],
-            price: ['', [Validators.required, Validators.min(0)]],
             quantity: [1, [Validators.required, Validators.min(1)]],
         });
     }
@@ -47,7 +46,7 @@ export class CreateOrder implements OnDestroy {
 
         if (this.orderForm.invalid) {
             this.orderForm.markAllAsTouched();
-            this.addToast('error', 'Formulaire incomplet', 'Verifiez les champs obligatoires avant envoi.');
+            this.addToast('error', 'Formulaire incomplet', 'Vérifiez les champs obligatoires avant envoi.');
             return;
         }
 
@@ -56,9 +55,8 @@ export class CreateOrder implements OnDestroy {
         // Simule l'envoi API en attendant le branchement backend commande.
         setTimeout(() => {
             this.loading = false;
-            const orderNumber = `CMD-${Date.now().toString().slice(-6)}`;
-            this.addToast('success', 'Commande envoyee', `Votre commande ${orderNumber} a bien ete enregistree.`);
-            this.orderForm.reset({ quantity: 1 });
+            this.addToast('success', 'Commande envoyée', `Votre commande pour ${this.orderForm.value.address} a bien été enregistrée.`);
+            this.orderForm.reset({ address: '', requestedDate: '', timeSlot: '', quantity: 1 });
             this.submitted = false;
         }, 900);
     }
