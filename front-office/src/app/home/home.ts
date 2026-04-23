@@ -11,7 +11,7 @@ export class Home {
     constructor(private router: Router) {}
 
     goToPreviousOrders() {
-        this.router.navigate(['']); //TODO navigate to previous orders
+        this.router.navigate(['/orders/previous']);
     }
 
     goToNewOrder() {

@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { Login } from './login/login';
 import { Home } from './home/home';
+import { CreateOrder } from './create-order/create-order';
 import { authGuard } from './services/auth.guard';
 
 export const routes: Routes = [
@@ -16,6 +17,11 @@ export const routes: Routes = [
   {
     path: 'home',
     component: Home,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'orders/previous',
+    component: PreviousOrders,
     canActivate: [authGuard]
   },
 ];
