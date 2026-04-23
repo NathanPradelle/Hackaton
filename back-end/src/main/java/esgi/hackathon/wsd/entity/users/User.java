@@ -20,4 +20,8 @@ public class User {
 
   @Enumerated(EnumType.STRING)
   private UserRole role; // Enum: ADMIN, DRIVER, CLIENT
+
+  public String getIdentifier() {
+    return username;
+  }
 }
