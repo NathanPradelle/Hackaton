@@ -1,0 +1,74 @@
+BDD
+
+User:
+- id user
+- password
+- identifiant
+- role ENUM
+
+Chauffeur:
+- id chauffeur
+- id user
+- nom
+- prenom
+- numéro de permis
+- statut
+
+Client:
+- id client
+- id user
+- nom
+- numéro siret
+- ville
+
+Admin:
+- id user
+- id admin
+
+Commande:
+- id client
+- id commande
+- id tournée
+- adresse_texte
+- latitude
+- longitude
+- date voulu
+- plage horaire
+- prix
+- quantité
+- statut
+
+Tournée:
+- id tournee, 
+- id chauffeur
+- id camion
+- date
+- plage horaire
+- statut
+
+Itinéraire:
+- id tournee
+- durée
+- contrainte
+- info gps
+
+Camion:
+- id camion
+- id modèle
+- statut
+- plaque d'immatriculation
+- quantité d'essence
+
+Modèle:
+- id modèle
+- marque
+- nom du modèle
+- capacité
+- consommation d'essence
+- type d'essence
+- capacité reservoir
+
+
+
+
+

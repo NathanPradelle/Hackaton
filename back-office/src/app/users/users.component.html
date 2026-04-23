@@ -1,0 +1,79 @@
+<app-toast></app-toast>
+<app-confirmation-modal></app-confirmation-modal>
+<div style="margin-bottom: 20px;">
+  <button routerLink="/dashboard" style="background-color: #718096;">&larr; Retour au Dashboard</button>
+</div>
+
+<h2>Gestion des Utilisateurs</h2>
+
+<div style="display: flex; justify-content: space-between; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+  <button (click)="isAdding.set(true); nouveauUser.set({})" style="width: auto; margin: 0;">+ Ajouter un utilisateur</button>
+  <input type="text" placeholder="Rechercher un identifiant ou rôle..." [(ngModel)]="searchTerm" style="width: 300px; margin-bottom: 0;">
+</div>
+
+@if (isAdding()) {
+  <div class="modal-overlay" (click)="isAdding.set(false)">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <h3 style="margin-top: 0;">{{ nouveauUser().id_user ? 'Modifier l\'Utilisateur' : 'Nouvel Utilisateur' }}</h3>
+      <form (ngSubmit)="ajouter()" #userForm="ngForm" style="display: flex; flex-direction: column;">
+        <div><label>Identifiant</label><input type="text" [(ngModel)]="nouveauUser().identifiant" name="identifiant" required></div>
+        <div>
+          <label>Rôle</label>
+          <select [(ngModel)]="nouveauUser().role" name="role" required>
+            <option [ngValue]="undefined" disabled selected>Choisir un rôle</option>
+            <option value="ADMIN">ADMIN</option>
+            <option value="CHAUFFEUR">CHAUFFEUR</option>
+            <option value="CLIENT">CLIENT</option>
+          </select>
+        </div>
+        
+        @if (nouveauUser().role === 'CHAUFFEUR') {
+          <div><label>Nom</label><input type="text" [(ngModel)]="nouveauUser().nom" name="nom" required></div>
+          <div><label>Prénom</label><input type="text" [(ngModel)]="nouveauUser().prenom" name="prenom" required></div>
+          <div><label>Numéro de permis</label><input type="text" [(ngModel)]="nouveauUser().numero_permis" name="numero_permis" required></div>
+        }
+        
+        @if (nouveauUser().role === 'CLIENT') {
+          <div><label>Nom (Entreprise)</label><input type="text" [(ngModel)]="nouveauUser().nom" name="nom" required></div>
+          <div><label>Numéro SIRET</label><input type="text" [(ngModel)]="nouveauUser().numero_siret" name="numero_siret" required></div>
+          <div><label>Ville</label><input type="text" [(ngModel)]="nouveauUser().ville" name="ville" required></div>
+        }
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
+          <button type="button" (click)="isAdding.set(false)" style="background: #e2e8f0; color: #4a5568; width: auto; margin-top: 0;">Annuler</button>
+          <button type="submit" [disabled]="!userForm.valid" [style.opacity]="userForm.valid ? '1' : '0.5'" style="width: auto; margin-top: 0;">Enregistrer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+<table>
+  <thead>
+    <tr>
+      <th class="sortable" (click)="sortBy('id_user')">ID User {{ sortColumn() === 'id_user' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
+      <th class="sortable" (click)="sortBy('identifiant')">Identifiant {{ sortColumn() === 'identifiant' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
+      <th class="sortable" (click)="sortBy('role')">Rôle {{ sortColumn() === 'role' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (user of usersFiltres(); track user.id_user) {
+      <tr>
+        <td>{{ user.id_user }}</td>
+        <td>{{ user.identifiant }}</td>
+        <td>{{ user.role }}</td>
+        <td>
+          <div class="action-buttons">
+            <button class="icon-btn edit" title="Éditer" (click)="editer(user)">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+            </button>
+            <button class="icon-btn delete" title="Supprimer" (click)="supprimer(user.id_user)">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            </button>
+          </div>
+        </td>
+      </tr>
+    }
+  </tbody>
+</table>

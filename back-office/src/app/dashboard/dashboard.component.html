@@ -1,0 +1,16 @@
+<div class="dashboard-container">
+  <h2>Dashboard Back-Office</h2>
+  <p>Bienvenue sur l'espace d'administration. Que souhaitez-vous gérer ?</p>
+  
+  <nav class="dashboard-nav">
+    <ul>
+      <li><button routerLink="/users">Gestion des Utilisateurs</button></li>
+      <li><button routerLink="/camions">Gestion des Camions</button></li>
+      <li><button routerLink="/commandes">Gestion des Commandes</button></li>
+    </ul>
+  </nav>
+
+  <div style="margin-top: 40px; text-align: center;">
+    <button (click)="logout()" style="background-color: #e53e3e; width: auto;">Se déconnecter</button>
+  </div>
+</div>
