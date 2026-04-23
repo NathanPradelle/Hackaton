@@ -21,18 +21,35 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _fadeController = AnimationController(vsync: this, duration: const Duration(milliseconds: 1200));
-    _slideController = AnimationController(vsync: this, duration: const Duration(milliseconds: 900));
+    _fadeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    );
+    _slideController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    );
 
-    _fadeAnimation = CurvedAnimation(parent: _fadeController, curve: Curves.easeOut);
-    _slideAnimation = Tween<Offset>(begin: const Offset(0, 0.15), end: Offset.zero)
-        .animate(CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic));
+    _fadeAnimation = CurvedAnimation(
+      parent: _fadeController,
+      curve: Curves.easeOut,
+    );
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.15), end: Offset.zero).animate(
+          CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic),
+        );
     _logoScale = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _fadeController, curve: const Interval(0.0, 0.6, curve: Curves.elasticOut)),
+      CurvedAnimation(
+        parent: _fadeController,
+        curve: const Interval(0.0, 0.6, curve: Curves.elasticOut),
+      ),
     );
 
     _fadeController.forward();
-    Future.delayed(const Duration(milliseconds: 300), () => _slideController.forward());
+    Future.delayed(
+      const Duration(milliseconds: 300),
+      () => _slideController.forward(),
+    );
   }
 
   @override
@@ -54,7 +71,9 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
               content: Text(state.message),
               backgroundColor: AppTheme.error,
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
           );
         }
@@ -81,18 +100,42 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                       child: Column(
                         children: [
                           Container(
-                            width: 80, height: 80,
+                            width: 80,
+                            height: 80,
                             decoration: BoxDecoration(
                               color: AppTheme.accent.withOpacity(0.15),
                               borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: AppTheme.accent.withOpacity(0.3), width: 1.5),
+                              border: Border.all(
+                                color: AppTheme.accent.withOpacity(0.3),
+                                width: 1.5,
+                              ),
                             ),
-                            child: const Icon(Icons.local_shipping_rounded, color: AppTheme.accent, size: 40),
+                            child: const Icon(
+                              Icons.local_shipping_rounded,
+                              color: AppTheme.accent,
+                              size: 40,
+                            ),
                           ),
                           const SizedBox(height: 20),
-                          const Text('WSL', style: TextStyle(fontSize: 44, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 8)),
+                          const Text(
+                            'WSL',
+                            style: TextStyle(
+                              fontSize: 44,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.white,
+                              letterSpacing: 8,
+                            ),
+                          ),
                           const SizedBox(height: 4),
-                          Text('Wizard Speed Delivery', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: AppTheme.textMuted, letterSpacing: 3)),
+                          Text(
+                            'Wizard Speed Delivery',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              color: AppTheme.textMuted,
+                              letterSpacing: 3,
+                            ),
+                          ),
                         ],
                       ),
                     ),

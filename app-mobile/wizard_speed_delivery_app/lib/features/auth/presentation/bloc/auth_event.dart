@@ -6,6 +6,7 @@ abstract class AuthEvent {}
 class AuthLoginRequested extends AuthEvent {
   final String identifiant;
   final String password;
+
   AuthLoginRequested({required this.identifiant, required this.password});
 }
 
