@@ -1,5 +1,7 @@
 package esgi.hackathon.wsd.service;
 
+import esgi.hackathon.wsd.algorithm.service.GeocodingService;
+import esgi.hackathon.wsd.algorithm.service.PriceSimulationService;
 import esgi.hackathon.wsd.dto.OrderDto;
 import esgi.hackathon.wsd.entity.operations.Order;
 import esgi.hackathon.wsd.enums.OrderStatus;
@@ -16,6 +18,8 @@ public class OrderService {
 
   private final OrderRepository orderRepository;
   private final OrderMapper orderMapper;
+  private final GeocodingService geocodingService;
+  private final PriceSimulationService priceSimulationService;
 
   @Transactional(readOnly = true)
   public List<OrderDto> getAllOrders() {
@@ -31,15 +35,27 @@ public class OrderService {
     if (order.getTrip() != null && order.getTrip().getId() == null) {
       order.setTrip(null);
     }
-
     if (order.getClient() != null && order.getClient().getId() == null) {
       order.setClient(null);
     }
 
     order.setStatus(OrderStatus.PENDING);
 
-    Order savedOrder = orderRepository.save(order);
-    return orderMapper.toDto(savedOrder);
+    // Géocoder l'adresse si les coordonnées ne sont pas fournies
+    if (order.getLatitude() == null && order.getAddressText() != null) {
+      double[] coords = geocodingService.geocode(order.getAddressText());
+      if (coords != null) {
+        order.setLatitude(coords[0]);
+        order.setLongitude(coords[1]);
+      }
+    }
+
+    // Calculer le prix estimé si non fourni
+    if (order.getPrice() == null || order.getPrice() == 0.0) {
+      order.setPrice(priceSimulationService.simulatePrice(order));
+    }
+
+    return orderMapper.toDto(orderRepository.save(order));
   }
 
   @Transactional(readOnly = true)

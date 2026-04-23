@@ -1,4 +1,4 @@
-server :
+server:
   port: 8080
 
 spring:
@@ -21,3 +21,29 @@ spring:
         format_sql: true
         jdbc:
           batch_size: 25
+
+# ── Algorithme d'optimisation ─────────────────────────────────────────────────
+algorithm:
+  # Clé OpenRouteService — https://openrouteservice.org/dev/#/signup (gratuit)
+  ors:
+    api-key: eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImY3NjY1Y2U0ZDY5ZTQ3MzVhMzJjMDVlM2RiOWIzNWQ3IiwiaCI6Im11cm11cjY0In0=
+    base-url: https://api.openrouteservice.org
+
+  # Dépôt fixe (Paris)
+  depot:
+    latitude: 48.8566
+    longitude: 2.3522
+
+  # Seuil de réservoir en dessous duquel on cherche une station (15 %)
+  fuel:
+    safety-threshold-percent: 15
+
+  # Groupage : distance max entre deux adresses pour les grouper (km vol d'oiseau)
+  grouping:
+    max-distance-km: 30
+    # Écart max entre plages horaires pour les grouper (minutes)
+    max-time-gap-minutes: 60
+
+  # Prix = coût carburant × ce coefficient (marge entreprise incluse)
+  price:
+    margin-coefficient: 1.3
