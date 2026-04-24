@@ -20,20 +20,35 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthLogoutRequested>(_onLogout);
   }
 
-  Future<void> _onLogin(AuthLoginRequested event, Emitter<AuthState> emit) async {
+  Future<void> _onLogin(
+    AuthLoginRequested event,
+    Emitter<AuthState> emit,
+  ) async {
     emit(AuthLoading());
     try {
       final json = await _datasource.login(event.identifiant, event.password);
-      final user = User.fromJson(json);
+      debugPrint('=== LOGIN RAW JSON ===');
+      debugPrint('$json');
 
-      if (user.role != UserRole.chauffeur) {
-        emit(AuthFailure('Accès réservé aux chauffeurs'));
+      // Le user est imbriqué dans la clé "user"
+      final userJson = json['user'] as Map<String, dynamic>?;
+      if (userJson == null) {
+        emit(AuthFailure('Réponse serveur invalide'));
         return;
       }
 
-      // 3. Stocker le user
-      ApiService().currentUser = json;
+      // Le token est à la racine (c'est le userId dans ton cas)
+      final token = json['token'];
+      debugPrint('token=$token, user=$userJson');
+
+      final user = User.fromJson(userJson);
+
+      // Stocker le user
+      ApiService().currentUser = userJson;
+
+      // Résoudre le driverId
       final driverId = await _datasource.resolveDriverId(user.id);
+      debugPrint('driverId résolu: $driverId');
 
       if (driverId == null) {
         emit(AuthFailure('Profil chauffeur introuvable'));
@@ -50,7 +65,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(AuthFailure('Impossible de contacter le serveur'));
     }
   }
-
 
   Future<void> _onLogout(
     AuthLogoutRequested event,

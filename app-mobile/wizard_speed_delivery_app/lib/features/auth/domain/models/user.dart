@@ -11,15 +11,19 @@ class User {
     required this.role,
   });
 
-  factory User.fromJson(Map<String, dynamic> json) => User(
-    id: json['id'],
-    identifiant: json['identifiant'],
-    role: UserRole.values.byName(json['role']),
-  );
+  factory User.fromJson(Map<String, dynamic> json) {
+    final roleStr = json['role'] as String? ?? '';
+    final role = switch (roleStr) {
+      'DRIVER' => UserRole.chauffeur,
+      'CLIENT' => UserRole.client,
+      'ADMIN' => UserRole.admin,
+      _ => UserRole.client,
+    };
 
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'identifiant': identifiant,
-    'role': role.name,
-  };
+    return User(
+      id: json['id'] as int? ?? 0,
+      identifiant: json['identifier'] as String? ?? '',
+      role: role,
+    );
+  }
 }

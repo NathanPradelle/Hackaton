@@ -32,6 +32,7 @@ public class AuthController {
                 AuthUserDto authUser = new AuthUserDto(
                     user.getId(),
                     user.getUsername(),
+                    user.getRole().name(),
                     client != null ? client.getName() : null,
                     client != null ? client.getSiretNumber() : null,
                     client != null ? client.getCity() : null,
@@ -62,7 +63,7 @@ public class AuthController {
         client = clientRepository.save(client);
 
         AuthUserDto authUser = new AuthUserDto(
-            user.getId(), user.getUsername(),
+            user.getId(), user.getUsername(), user.getRole() != null ? user.getRole().name() : null,
             client.getName(), client.getSiretNumber(), client.getCity(), client.getId()
         );
         return new ResponseEntity<>(new AuthResponseDto(String.valueOf(user.getId()), authUser), HttpStatus.CREATED);
