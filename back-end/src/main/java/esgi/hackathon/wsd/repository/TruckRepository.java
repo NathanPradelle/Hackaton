@@ -9,4 +9,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TruckRepository extends JpaRepository<Truck, Long> {
   List<Truck> findByStatus(TruckStatus status);
+
+  Truck findFirstByStatusAndModelFuelConsumptionGreaterThan(TruckStatus status, Double minConsumption);
 }

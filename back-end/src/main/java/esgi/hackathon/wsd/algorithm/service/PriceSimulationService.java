@@ -9,6 +9,7 @@ import esgi.hackathon.wsd.enums.TruckStatus;
 import esgi.hackathon.wsd.repository.OrderRepository;
 import esgi.hackathon.wsd.repository.TruckRepository;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,14 +32,21 @@ public class PriceSimulationService {
     private static final Logger log = LoggerFactory.getLogger(PriceSimulationService.class);
     private static final double ROAD_FACTOR = 1.3;
 
-    @Value("${algorithm.depot.latitude}")  private double depotLat;
-    @Value("${algorithm.depot.longitude}") private double depotLng;
+    @Value("${algorithm.depot.latitude}")
+    private double depotLat;
+    @Value("${algorithm.depot.longitude}")
+    private double depotLng;
 
-    @Value("${algorithm.price.driver-cost-per-km}") private double driverCostPerKm;
-    @Value("${algorithm.price.wear-cost-per-km}")   private double wearCostPerKm;
-    @Value("${algorithm.price.toll-cost-per-km}")   private double tollCostPerKm;
-    @Value("${algorithm.price.stop-fee}")            private double stopFee;
-    @Value("${algorithm.price.margin-rate}")         private double marginRate;
+    @Value("${algorithm.price.driver-cost-per-km}")
+    private double driverCostPerKm;
+    @Value("${algorithm.price.wear-cost-per-km}")
+    private double wearCostPerKm;
+    @Value("${algorithm.price.toll-cost-per-km}")
+    private double tollCostPerKm;
+    @Value("${algorithm.price.stop-fee}")
+    private double stopFee;
+    @Value("${algorithm.price.margin-rate}")
+    private double marginRate;
 
     private final GeocodingService geocodingService;
     private final OrderGroupingService orderGroupingService;
@@ -51,15 +59,15 @@ public class PriceSimulationService {
         OrderRepository orderRepository,
         TruckRepository truckRepository
     ) {
-        this.geocodingService     = geocodingService;
+        this.geocodingService = geocodingService;
         this.orderGroupingService = orderGroupingService;
-        this.orderRepository      = orderRepository;
-        this.truckRepository      = truckRepository;
+        this.orderRepository = orderRepository;
+        this.truckRepository = truckRepository;
     }
 
     /**
-     * Calcule le prix estimé et retourne le détail du calcul.
-     * Géocode l'adresse si les coordonnées sont absentes (les pose sur l'entité).
+     * Calcule le prix estimé et retourne le détail du calcul. Géocode l'adresse si les coordonnées
+     * sont absentes (les pose sur l'entité).
      */
     public PriceBreakdownDto simulateBreakdown(Order newOrder) {
         if (newOrder.getLatitude() == null && newOrder.getAddressText() != null) {
@@ -76,47 +84,48 @@ public class PriceSimulationService {
         }
 
         // Référence : premier camion diesel disponible (fallback si aucun)
-        List<Truck> available = truckRepository.findByStatus(TruckStatus.AVAILABLE);
-        Truck ref = available.stream()
-            .filter(t -> t.getModel() != null && t.getModel().getFuelConsumption() != null
-                && t.getModel().getFuelConsumption() > 0)
-            .findFirst().orElse(null);
+        Truck ref = truckRepository.findFirstByStatusAndModelFuelConsumptionGreaterThan(
+            TruckStatus.AVAILABLE, 0.0);
 
         int truckCapacity = ref != null && ref.getModel().getCapacity() != null
             ? ref.getModel().getCapacity().intValue() : 100;
         double consumption = ref != null ? ref.getModel().getFuelConsumption() : 8.5; // L/100 km
-        FuelType fuelType  = ref != null && ref.getModel().getFuelType() != null
+        FuelType fuelType = ref != null && ref.getModel().getFuelType() != null
             ? ref.getModel().getFuelType() : FuelType.DIESEL;
 
         // Commandes existantes compatibles pour groupage
         List<Order> candidates = newOrder.getRequestedDate() != null
-            ? orderRepository.findByStatusAndRequestedDate(OrderStatus.PENDING, newOrder.getRequestedDate())
+            ? orderRepository.findByStatusAndRequestedDate(OrderStatus.PENDING,
+            newOrder.getRequestedDate())
             : List.of();
-        List<Order> grouped = orderGroupingService.findCompatible(newOrder, candidates, truckCapacity);
+        List<Order> grouped = orderGroupingService.findCompatible(newOrder, candidates,
+            truckCapacity);
 
         List<Order> allStops = new ArrayList<>();
         allStops.add(newOrder);
         allStops.addAll(grouped);
 
         double totalDistKm = estimateRouteDistance(allStops);
-        int    totalQty    = allStops.stream().mapToInt(o -> o.getQuantity() != null ? o.getQuantity() : 1).sum();
-        int    orderQty    = newOrder.getQuantity() != null ? newOrder.getQuantity() : 1;
-        double ratio       = totalQty > 0 ? (double) orderQty / totalQty : 1.0;
+        int totalQty = allStops.stream()
+            .mapToInt(o -> o.getQuantity() != null ? o.getQuantity() : 1).sum();
+        int orderQty = newOrder.getQuantity() != null ? newOrder.getQuantity() : 1;
+        double ratio = totalQty > 0 ? (double) orderQty / totalQty : 1.0;
 
         // Coût carburant
         double fuelPricePerLitre = FuelPlanningService.defaultFuelPrice(fuelType);
-        double fuelCostPerKm     = (consumption / 100.0) * fuelPricePerLitre;
+        double fuelCostPerKm = (consumption / 100.0) * fuelPricePerLitre;
 
         // Coût total tournée puis proratisation
-        double routeFuelCost   = fuelCostPerKm  * totalDistKm * ratio;
+        double routeFuelCost = fuelCostPerKm * totalDistKm * ratio;
         double routeDriverCost = driverCostPerKm * totalDistKm * ratio;
-        double routeWearCost   = wearCostPerKm   * totalDistKm * ratio;
-        double routeTollCost   = tollCostPerKm   * totalDistKm * ratio;
-        double orderStopFee    = stopFee; // frais fixe par livraison, non proratisé
+        double routeWearCost = wearCostPerKm * totalDistKm * ratio;
+        double routeTollCost = tollCostPerKm * totalDistKm * ratio;
+        double orderStopFee = stopFee; // frais fixe par livraison, non proratisé
 
-        double subtotal = routeFuelCost + routeDriverCost + routeWearCost + routeTollCost + orderStopFee;
-        double marge    = subtotal * marginRate;
-        double total    = subtotal + marge;
+        double subtotal =
+            routeFuelCost + routeDriverCost + routeWearCost + routeTollCost + orderStopFee;
+        double marge = subtotal * marginRate;
+        double total = subtotal + marge;
 
         log.info("Simulation : {} carton(s), {} km (tournée), ratio={}% → {} €",
             orderQty, Math.round(totalDistKm), Math.round(ratio * 100), round(total));
@@ -134,7 +143,9 @@ public class PriceSimulationService {
         );
     }
 
-    /** Raccourci : retourne uniquement le prix total (pour createOrder). */
+    /**
+     * Raccourci : retourne uniquement le prix total (pour createOrder).
+     */
     public double simulatePrice(Order newOrder) {
         return simulateBreakdown(newOrder).prixTotal();
     }
@@ -147,28 +158,37 @@ public class PriceSimulationService {
         return Math.round(v * 100.0) / 100.0;
     }
 
-    /** Nearest-neighbor depuis le dépôt pour estimer la distance route. */
+    /**
+     * Nearest-neighbor depuis le dépôt pour estimer la distance route.
+     */
     private double estimateRouteDistance(List<Order> orders) {
         List<Order> remaining = new ArrayList<>(orders.stream()
             .filter(o -> o.getLatitude() != null).toList());
-
         double totalDist = 0;
         double curLat = depotLat;
         double curLng = depotLng;
 
         while (!remaining.isEmpty()) {
-            final double lat = curLat, lng = curLng;
-            Order nearest = remaining.stream()
-                .min((a, b) -> Double.compare(
-                    RoutingService.haversine(lat, lng, a.getLatitude(), a.getLongitude()),
-                    RoutingService.haversine(lat, lng, b.getLatitude(), b.getLongitude())))
-                .orElseThrow();
-            totalDist += RoutingService.haversine(curLat, curLng, nearest.getLatitude(), nearest.getLongitude()) * ROAD_FACTOR;
+            Order nearest = null;
+            double minDist = Double.MAX_VALUE;
+
+            for (Order candidate : remaining) {
+                double dist = RoutingService.haversine(curLat, curLng, candidate.getLatitude(),
+                    candidate.getLongitude());
+                if (dist < minDist) {
+                    minDist = dist;
+                    nearest = candidate;
+                }
+            }
+            totalDist += minDist * ROAD_FACTOR;
             curLat = nearest.getLatitude();
             curLng = nearest.getLongitude();
             remaining.remove(nearest);
         }
+
+        // Retour au dépôt
         totalDist += RoutingService.haversine(curLat, curLng, depotLat, depotLng) * ROAD_FACTOR;
         return totalDist;
     }
 }
+
