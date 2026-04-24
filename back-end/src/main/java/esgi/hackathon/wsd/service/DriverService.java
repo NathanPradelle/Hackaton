@@ -24,7 +24,6 @@ public class DriverService {
     return driverRepository.findAll().stream().map(driverMapper::toDto).toList();
   }
 
-  // 🔥 Le petit plus pour ton Algorithme
   @Transactional(readOnly = true)
   public List<DriverDto> getAvailableDrivers() {
     return driverRepository.findByStatus(DriverStatus.AVAILABLE).stream()
@@ -34,7 +33,7 @@ public class DriverService {
   @Transactional
   public DriverDto createDriver(DriverDto driverDto) {
     Driver driver = driverMapper.toEntity(driverDto);
-    driver.setStatus(DriverStatus.AVAILABLE); // Par défaut un nouveau chauffeur est dispo
+    driver.setStatus(DriverStatus.AVAILABLE);
     return driverMapper.toDto(driverRepository.save(driver));
   }
 }
