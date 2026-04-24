@@ -20,10 +20,10 @@ import org.springframework.stereotype.Service;
  * et automatiquement lors de la création de commande.
  *
  * Formule :
- *   coût_km = carburant_km + salarial_km + usure_km + péage_km
- *   coût_tournée = coût_km × distance + frais_stop × nb_stops
- *   part_commande = coût_tournée × (qté_commande / qté_totale)
- *   prix = part_commande × (1 + marge)
+ * coût_km = carburant_km + salarial_km + usure_km + péage_km
+ * coût_tournée = coût_km × distance + frais_stop × nb_stops
+ * part_commande = coût_tournée × (qté_commande / MAX(qté_totale, seuil_rentabilité))
+ * prix = part_commande × (1 + marge)
  */
 @Service
 public class PriceSimulationService {
@@ -37,8 +37,8 @@ public class PriceSimulationService {
     @Value("${algorithm.price.driver-cost-per-km}") private double driverCostPerKm;
     @Value("${algorithm.price.wear-cost-per-km}")   private double wearCostPerKm;
     @Value("${algorithm.price.toll-cost-per-km}")   private double tollCostPerKm;
-    @Value("${algorithm.price.stop-fee}")            private double stopFee;
-    @Value("${algorithm.price.margin-rate}")         private double marginRate;
+    @Value("${algorithm.price.stop-fee}")           private double stopFee;
+    @Value("${algorithm.price.margin-rate}")        private double marginRate;
 
     private final GeocodingService geocodingService;
     private final OrderGroupingService orderGroupingService;
@@ -98,16 +98,22 @@ public class PriceSimulationService {
         allStops.add(newOrder);
         allStops.addAll(grouped);
 
+        // Calcul exact de la distance de la portion de tournée (sans x2)
         double totalDistKm = estimateRouteDistance(allStops);
         int    totalQty    = allStops.stream().mapToInt(o -> o.getQuantity() != null ? o.getQuantity() : 1).sum();
         int    orderQty    = newOrder.getQuantity() != null ? newOrder.getQuantity() : 1;
-        double ratio       = totalQty > 0 ? (double) orderQty / totalQty : 1.0;
+
+        // Le seuil de rentabilité pour l'entreprise (ex: on estime que le camion sera rempli à au moins 70%)
+        double expectedMinimumQty = truckCapacity * 0.70; 
+        
+        // Le ratio protège le client si le camion est quasiment vide
+        double ratio = (double) orderQty / Math.max(totalQty, expectedMinimumQty);
 
         // Coût carburant
         double fuelPricePerLitre = FuelPlanningService.defaultFuelPrice(fuelType);
         double fuelCostPerKm     = (consumption / 100.0) * fuelPricePerLitre;
 
-        // Coût total tournée puis proratisation
+        // Coût total tournée puis proratisation juste
         double routeFuelCost   = fuelCostPerKm  * totalDistKm * ratio;
         double routeDriverCost = driverCostPerKm * totalDistKm * ratio;
         double routeWearCost   = wearCostPerKm   * totalDistKm * ratio;
@@ -147,7 +153,7 @@ public class PriceSimulationService {
         return Math.round(v * 100.0) / 100.0;
     }
 
-    /** Nearest-neighbor depuis le dépôt pour estimer la distance route. */
+    /** Nearest-neighbor depuis le dépôt pour estimer la distance route (original conservé) */
     private double estimateRouteDistance(List<Order> orders) {
         List<Order> remaining = new ArrayList<>(orders.stream()
             .filter(o -> o.getLatitude() != null).toList());
