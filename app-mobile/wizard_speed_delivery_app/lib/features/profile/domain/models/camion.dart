@@ -27,12 +27,4 @@ class Camion {
         ? ModeleCamion.fromJson(json['modele'])
         : null,
   );
-
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'modeleId': modeleId,
-    'statut': statut.name,
-    'plaqueImmatriculation': plaqueImmatriculation,
-    'quantiteEssence': quantiteEssence,
-  };
 }

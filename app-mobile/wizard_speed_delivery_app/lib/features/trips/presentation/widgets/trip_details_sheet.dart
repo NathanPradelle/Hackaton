@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../../../../shared/enums/enums.dart';
 import '../../../planning/domain/models/tournee.dart';
 
 void showTripDetailSheet(BuildContext context, Tournee tournee) {
@@ -21,11 +20,8 @@ void showTripDetailSheet(BuildContext context, Tournee tournee) {
   ];
   final d = tournee.date;
   final dateStr = '${j[d.weekday - 1]} ${d.day} ${m[d.month - 1]} ${d.year}';
-  final plage = switch (tournee.plageHoraire) {
-    PlageHoraire.matin => '6h – 12h',
-    PlageHoraire.apresMidi => '12h – 18h',
-    PlageHoraire.journee => 'Journée',
-  };
+  final plage = tournee.plageHoraire;
+
 
   showModalBottomSheet(
     context: context,

@@ -10,4 +10,4 @@ enum StatutCamion { disponible, enCours, maintenance, horsService }
 
 enum TypeEssence { diesel, essence, electrique, gnv }
 
-enum PlageHoraire { matin, apresMidi, journee }
+//enum PlageHoraire { matin, apresMidi, journee }

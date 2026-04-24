@@ -1,6 +1,6 @@
 class Itineraire {
   final int tourneeId;
-  final int duree;
+  final double duree;
   final String? contrainte;
   final String? infoGps;
 
@@ -12,23 +12,19 @@ class Itineraire {
   });
 
   String get dureeFormatee {
-    final h = duree ~/ 60;
-    final m = duree % 60;
+    final totalMin = duree.round();
+    final h = totalMin ~/ 60;
+    final m = totalMin % 60;
     if (h == 0) return '${m}min';
     return '${h}h${m.toString().padLeft(2, '0')}';
   }
 
   factory Itineraire.fromJson(Map<String, dynamic> json) => Itineraire(
     tourneeId: json['tourneeId'],
-    duree: json['duree'],
+    duree: (json['duree'] as num).toDouble(),
     contrainte: json['contrainte'],
     infoGps: json['infoGps'],
   );
 
-  Map<String, dynamic> toJson() => {
-    'tourneeId': tourneeId,
-    'duree': duree,
-    'contrainte': contrainte,
-    'infoGps': infoGps,
-  };
+
 }
