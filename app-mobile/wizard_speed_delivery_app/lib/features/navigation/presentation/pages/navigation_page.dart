@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import '../../../../core/service/api_service.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../shared/enums/enums.dart';
+import '../../../planning/domain/models/commande.dart';
 import '../../../planning/domain/models/tournee.dart';
+import '../../../planning/domain/models/itineraire.dart';
 import '../bloc/navigation_bloc.dart';
 
 class NavigationPage extends StatelessWidget {
@@ -67,41 +70,8 @@ class NavigationPage extends StatelessWidget {
   Widget _buildNavigation(BuildContext context, Tournee active) {
     return Stack(
       children: [
-        // Map placeholder
-        Container(
-          width: double.infinity,
-          height: double.infinity,
-          color: AppTheme.surfaceLight,
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.map_rounded,
-                  size: 64,
-                  color: AppTheme.textMuted.withOpacity(0.3),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Mapbox Navigation',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.textMuted.withOpacity(0.5),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Intégrer mapbox_maps_flutter ici',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: AppTheme.textMuted.withOpacity(0.35),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
+        // Map
+        _MapView(tournee: active),
         // Top bar
         Positioned(
           top: 0,
@@ -335,6 +305,126 @@ class NavigationPage extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+// ──────────────────────────────────────────────
+// Map view — stateful to hold the MapboxMap controller
+// ──────────────────────────────────────────────
+
+class _MapView extends StatefulWidget {
+  final Tournee tournee;
+
+  const _MapView({required this.tournee});
+
+  @override
+  State<_MapView> createState() => _MapViewState();
+}
+
+class _MapViewState extends State<_MapView> {
+  MapboxMap? _mapboxMap;
+
+  void _onMapCreated(MapboxMap mapboxMap) {
+    _mapboxMap = mapboxMap;
+    _drawRoute();
+  }
+
+  Future<void> _drawRoute() async {
+    final map = _mapboxMap;
+    if (map == null) return;
+
+    final commandes = widget.tournee.commandes;
+    if (commandes == null || commandes.isEmpty) return;
+
+    // Prefer GPS waypoints from itinerary when available (includes fuel stops)
+    final waypoints = widget.tournee.itineraire?.parsedWaypoints;
+    final routeCoords = waypoints != null && waypoints.isNotEmpty
+        ? waypoints.map((w) => Position(w.lng, w.lat)).toList()
+        : commandes.map((c) => Position(c.longitude, c.latitude)).toList();
+
+    // Route polyline
+    if (routeCoords.length >= 2) {
+      final lineManager =
+          await map.annotations.createPolylineAnnotationManager();
+      await lineManager.create(
+        PolylineAnnotationOptions(
+          geometry: LineString(coordinates: routeCoords),
+          lineColor: AppTheme.accent.value,
+          lineWidth: 4.0,
+          lineOpacity: 0.9,
+        ),
+      );
+    }
+
+    // Delivery stop markers (numbered)
+    final pointManager =
+        await map.annotations.createPointAnnotationManager();
+
+    // Depot marker
+    if (waypoints != null && waypoints.isNotEmpty) {
+      final depot = waypoints.firstWhere(
+        (w) => w.type == 'depot',
+        orElse: () => waypoints.first,
+      );
+      await pointManager.create(
+        PointAnnotationOptions(
+          geometry: Point(coordinates: Position(depot.lng, depot.lat)),
+          textField: '⬟',
+          textSize: 20.0,
+          textColor: AppTheme.success.value,
+        ),
+      );
+    }
+
+    // Delivery markers with stop number
+    for (final (i, c) in commandes.indexed) {
+      await pointManager.create(
+        PointAnnotationOptions(
+          geometry: Point(coordinates: Position(c.longitude, c.latitude)),
+          textField: '${i + 1}',
+          textSize: 16.0,
+          textColor: Colors.white.value,
+          textHaloColor: AppTheme.accent.value,
+          textHaloWidth: 2.0,
+        ),
+      );
+    }
+
+    // Fuel stop markers from GPS data
+    if (waypoints != null) {
+      for (final w in waypoints.where((w) => w.type == 'carburant')) {
+        await pointManager.create(
+          PointAnnotationOptions(
+            geometry: Point(coordinates: Position(w.lng, w.lat)),
+            textField: '⛽',
+            textSize: 18.0,
+            textColor: Colors.orange.value,
+          ),
+        );
+      }
+    }
+  }
+
+  Position _initialCenter() {
+    final commandes = widget.tournee.commandes;
+    if (commandes != null && commandes.isNotEmpty) {
+      return Position(commandes.first.longitude, commandes.first.latitude);
+    }
+    // Paris depot default
+    return Position(2.3522, 48.8566);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MapboxMap(
+      styleUri: MapboxStyles.DARK,
+      cameraOptions: CameraOptions(
+        center: Point(coordinates: _initialCenter()),
+        zoom: 11.0,
+        pitch: 15.0,
+      ),
+      onMapCreated: _onMapCreated,
     );
   }
 }

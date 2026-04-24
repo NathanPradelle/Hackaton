@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -24,11 +24,11 @@ type SortField = 'id' | 'dateVoulu' | 'prix' | 'quantite' | 'statut';
   styleUrl: './previous-orders.css',
 })
 export class PreviousOrders implements OnInit {
-  orders: Order[] = [];
-  loading = true;
-  error = false;
+  orders  = signal<Order[]>([]);
+  loading = signal(true);
+  error   = signal(false);
 
-  searchTerm = '';
+  searchTerm    = '';
   sortField: SortField = 'dateVoulu';
   sortDirection: 'asc' | 'desc' = 'desc';
 
@@ -45,19 +45,19 @@ export class PreviousOrders implements OnInit {
     const clientId = user?.clientId;
 
     if (!clientId) {
-      this.loading = false;
+      this.loading.set(false);
       return;
     }
 
     this.http.get<Order[]>(`${this.apiUrl}/client/${clientId}`).subscribe({
-      next: (data) => { this.orders = data; this.loading = false; },
-      error: () => { this.error = true; this.loading = false; }
+      next: (data) => { this.orders.set(data); this.loading.set(false); },
+      error: () => { this.error.set(true); this.loading.set(false); }
     });
   }
 
   get displayedOrders(): Order[] {
     const term = this.searchTerm.trim().toLowerCase();
-    const filtered = this.orders.filter(o =>
+    const filtered = this.orders().filter(o =>
       !term ||
       o.id.toString().includes(term) ||
       o.dateVoulu.includes(term) ||
@@ -67,7 +67,7 @@ export class PreviousOrders implements OnInit {
     return [...filtered].sort((a, b) => this.compareOrders(a, b));
   }
 
-  get hasOrders(): boolean { return this.orders.length > 0; }
+  get hasOrders(): boolean { return this.orders().length > 0; }
   get hasFilteredResults(): boolean { return this.displayedOrders.length > 0; }
 
   getStatusLabel(statut: Order['statut']): string {

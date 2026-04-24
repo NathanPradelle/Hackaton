@@ -15,23 +15,21 @@
       <p class="mt-2 text-sm text-white/90">Historique de vos commandes.</p>
     </div>
 
-    <!-- Loading -->
-    @if (loading) {
+    @if (loading()) {
       <div class="rounded-2xl bg-white p-10 shadow-sm ring-1 ring-slate-200 text-center">
         <span class="inline-block h-6 w-6 animate-spin rounded-full border-2 border-indigo-600/30 border-t-indigo-600"></span>
         <p class="mt-3 text-sm text-slate-500">Chargement des commandes…</p>
       </div>
     }
 
-    <!-- Error -->
-    @if (!loading && error) {
+    @if (!loading() && error()) {
       <div class="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-red-200 text-center">
         <p class="text-sm font-semibold text-red-700">Impossible de charger vos commandes.</p>
         <p class="mt-1 text-xs text-slate-500">Vérifiez votre connexion et réessayez.</p>
       </div>
     }
 
-    @if (!loading && !error) {
+    @if (!loading() && !error()) {
       <div class="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-slate-200">
 
         <div class="mb-6">
@@ -72,7 +70,7 @@
                   <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">Adresse</th>
                   <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">
                     <button type="button" (click)="setSort('dateVoulu')" class="inline-flex items-center gap-1 hover:text-indigo-600">
-                      Date souhaitée
+                      Date
                       <span class="text-xs" [class.text-indigo-600]="isSorted('dateVoulu')">{{ isSorted('dateVoulu') ? (sortDirection === 'asc' ? '▲' : '▼') : '↕' }}</span>
                     </button>
                   </th>
@@ -104,7 +102,7 @@
                     <td class="px-3 py-4 text-sm text-slate-500 max-w-xs truncate" [title]="order.adresseTexte">{{ order.adresseTexte }}</td>
                     <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">{{ order.dateVoulu }}</td>
                     <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">{{ order.plageHoraire }}</td>
-                    <td class="whitespace-nowrap px-3 py-4 text-sm font-medium text-slate-700">{{ order.prix | currency:'EUR':'symbol':'1.2-2':'fr' }}</td>
+                    <td class="whitespace-nowrap px-3 py-4 text-sm font-medium text-slate-700">{{ order.prix | currency:'EUR':'symbol':'1.2-2' }}</td>
                     <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">{{ order.quantite }}</td>
                     <td class="whitespace-nowrap px-3 py-4 text-sm">
                       <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset"

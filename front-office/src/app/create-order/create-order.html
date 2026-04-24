@@ -1,7 +1,6 @@
 <div class="min-h-screen bg-slate-100 px-4 py-10">
   <div class="mx-auto max-w-2xl">
 
-    <!-- Header -->
     <div class="mb-4">
       <button (click)="goBack()" class="inline-flex items-center gap-2 text-sm font-medium text-slate-600 transition hover:text-slate-900">
         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -12,12 +11,11 @@
     <div class="mb-6 rounded-2xl bg-gradient-to-r from-indigo-600 via-violet-600 to-purple-600 p-6 text-white shadow-lg">
       <h1 class="text-2xl font-bold tracking-tight">Passer une commande</h1>
       <p class="mt-1 text-sm text-indigo-100">
-        {{ step === 'form' ? 'Remplissez le formulaire pour obtenir un prix estimé.' : 'Vérifiez le détail du prix avant de confirmer.' }}
+        {{ step() === 'form' ? 'Remplissez le formulaire pour obtenir un prix estimé.' : 'Vérifiez le détail du prix avant de confirmer.' }}
       </p>
     </div>
 
-    <!-- ÉTAPE 1 : Formulaire -->
-    @if (step === 'form') {
+    @if (step() === 'form') {
       <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 sm:p-8">
         <form [formGroup]="orderForm" (ngSubmit)="simulatePrice()" class="grid gap-5 sm:grid-cols-2">
 
@@ -69,9 +67,9 @@
           </div>
 
           <div class="sm:col-span-2">
-            <button type="submit" [disabled]="loading"
+            <button type="submit" [disabled]="loading()"
               class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 disabled:opacity-60">
-              @if (loading) {
+              @if (loading()) {
                 <span class="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white"></span>
                 Calcul en cours...
               } @else {
@@ -84,8 +82,7 @@
       </div>
     }
 
-    <!-- ÉTAPE 2 : Détail du prix + confirmation -->
-    @if (step === 'confirm' && breakdown) {
+    @if (step() === 'confirm' && breakdown()) {
       <div class="space-y-4">
 
         <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
@@ -100,7 +97,7 @@
             <span class="font-medium text-slate-700">Quantité :</span>
             <span>{{ orderForm.value.quantity }} carton(s)</span>
             <span class="font-medium text-slate-700">Distance estimée :</span>
-            <span>{{ breakdown.distanceKm }} km</span>
+            <span>{{ breakdown()!.distanceKm }} km</span>
           </div>
         </div>
 
@@ -109,47 +106,47 @@
           <div class="space-y-2 text-sm">
             <div class="flex justify-between text-slate-600">
               <span>Carburant</span>
-              <span>{{ breakdown.coutCarburant | currency:'EUR':'symbol':'1.2-2' }}</span>
+              <span>{{ breakdown()!.coutCarburant | currency:'EUR':'symbol':'1.2-2' }}</span>
             </div>
             <div class="flex justify-between text-slate-600">
               <span>Part salariale chauffeur</span>
-              <span>{{ breakdown.partSalariale | currency:'EUR':'symbol':'1.2-2' }}</span>
+              <span>{{ breakdown()!.partSalariale | currency:'EUR':'symbol':'1.2-2' }}</span>
             </div>
             <div class="flex justify-between text-slate-600">
               <span>Usure & entretien véhicule</span>
-              <span>{{ breakdown.usureCamion | currency:'EUR':'symbol':'1.2-2' }}</span>
+              <span>{{ breakdown()!.usureCamion | currency:'EUR':'symbol':'1.2-2' }}</span>
             </div>
             <div class="flex justify-between text-slate-600">
               <span>Badge télépéage</span>
-              <span>{{ breakdown.badgeTelepeage | currency:'EUR':'symbol':'1.2-2' }}</span>
+              <span>{{ breakdown()!.badgeTelepeage | currency:'EUR':'symbol':'1.2-2' }}</span>
             </div>
             <div class="flex justify-between text-slate-600">
               <span>Frais de livraison</span>
-              <span>{{ breakdown.fraisLivraison | currency:'EUR':'symbol':'1.2-2' }}</span>
+              <span>{{ breakdown()!.fraisLivraison | currency:'EUR':'symbol':'1.2-2' }}</span>
             </div>
             <div class="mt-2 flex justify-between border-t pt-2 text-slate-700">
               <span>Sous-total</span>
-              <span>{{ breakdown.sousTotal | currency:'EUR':'symbol':'1.2-2' }}</span>
+              <span>{{ breakdown()!.sousTotal | currency:'EUR':'symbol':'1.2-2' }}</span>
             </div>
             <div class="flex justify-between text-slate-600">
               <span>Marge entreprise (20 %)</span>
-              <span>{{ breakdown.marge | currency:'EUR':'symbol':'1.2-2' }}</span>
+              <span>{{ breakdown()!.marge | currency:'EUR':'symbol':'1.2-2' }}</span>
             </div>
             <div class="mt-2 flex justify-between rounded-lg bg-indigo-50 px-3 py-2 text-base font-bold text-indigo-700 ring-1 ring-indigo-200">
               <span>Total TTC</span>
-              <span>{{ breakdown.prixTotal | currency:'EUR':'symbol':'1.2-2' }}</span>
+              <span>{{ breakdown()!.prixTotal | currency:'EUR':'symbol':'1.2-2' }}</span>
             </div>
           </div>
         </div>
 
         <div class="flex gap-3">
-          <button (click)="backToForm()" [disabled]="loading"
+          <button (click)="backToForm()" [disabled]="loading()"
             class="flex-1 rounded-lg border border-slate-300 bg-white py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:opacity-60">
             Modifier
           </button>
-          <button (click)="confirmOrder()" [disabled]="loading"
+          <button (click)="confirmOrder()" [disabled]="loading()"
             class="flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-600 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 disabled:opacity-60">
-            @if (loading) {
+            @if (loading()) {
               <span class="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white"></span>
               Enregistrement...
             } @else {
@@ -163,9 +160,8 @@
 
   </div>
 
-  <!-- Toasts -->
   <div class="fixed right-4 top-4 z-50 flex w-80 flex-col gap-3">
-    @for (toast of toasts; track toast.id) {
+    @for (toast of toasts(); track toast.id) {
       <div class="rounded-xl border bg-white p-4 shadow-lg"
         [ngClass]="{ 'border-emerald-200': toast.type === 'success', 'border-red-200': toast.type === 'error', 'border-slate-200': toast.type === 'info' }">
         <div class="flex items-start gap-3">
