@@ -1,169 +1,191 @@
-<div class="min-h-screen bg-gradient-to-br from-indigo-500 via-violet-500 to-purple-600 px-4 py-10 sm:flex sm:items-center sm:justify-center">
-    <div class="mx-auto w-full max-w-lg rounded-2xl bg-white/95 p-6 shadow-2xl backdrop-blur sm:p-8">
-        <h1 class="mb-6 text-center text-3xl font-bold tracking-tight text-slate-800">{{ isLoginMode ? 'Connexion' : 'Inscription' }}</h1>
+<div class="wsd-page flex items-center justify-center bg-transparent">
+  <div class="w-full max-w-md">
+    <div class="mb-12 text-center animate-fade-in">
+      <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-2xl border border-[#ff6b35]/30 bg-[#ff6b35]/15">
+        <svg class="h-10 w-10 text-[#ff6b35]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M3 7h11l3 4h4v5h-2a2 2 0 1 1-4 0H9a2 2 0 1 1-4 0H3V7Z" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M14 7v4h6" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </div>
+      <h1 class="mt-5 text-5xl font-black tracking-[0.5rem] text-white">WSL</h1>
+      <p class="mt-2 text-xs font-medium uppercase tracking-[0.35rem] text-[#5a7094]">Wizard Speed Delivery</p>
+    </div>
 
-        <div *ngIf="errorMessage" class="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
-            {{ errorMessage }}
+    <div class="wsd-panel p-7 sm:p-8 animate-slide-up">
+      <h2 class="mb-5 text-center text-2xl font-bold text-white">{{ isLoginMode ? 'Connexion' : 'Inscription' }}</h2>
+
+      <div *ngIf="errorMessage" class="mb-5 rounded-xl border border-[#ef4444]/50 bg-[#ef4444]/15 px-4 py-3 text-sm text-[#fecaca]">
+        {{ errorMessage }}
+      </div>
+
+      <form *ngIf="isLoginMode" [formGroup]="loginForm" (ngSubmit)="onLoginSubmit()" class="space-y-4">
+        <div>
+          <label for="login-identifier" class="mb-1 block text-sm font-medium text-[#8fa3bf]">Identifiant</label>
+          <input
+            id="login-identifier"
+            type="text"
+            formControlName="identifier"
+            placeholder="Votre identifiant"
+            [disabled]="loading"
+            class="wsd-input px-4 py-3 text-sm"
+            [ngClass]="isControlInvalid(loginForm, 'identifier') ? 'border-[#ef4444] focus:ring-[#ef4444]/20' : ''" />
+          <small class="mt-1 block text-xs text-[#fca5a5]" *ngIf="isControlInvalid(loginForm, 'identifier')">
+            L'identifiant est requis (min 3 caractères)
+          </small>
         </div>
 
-        <form *ngIf="isLoginMode" [formGroup]="loginForm" (ngSubmit)="onLoginSubmit()" class="space-y-4">
-            <div class="space-y-1">
-                <label for="login-identifier" class="mb-1 block text-sm font-medium text-slate-700">Identifiant</label>
-                <input
-                    type="text"
-                    id="login-identifier"
-                    formControlName="identifier"
-                    placeholder="Entrez votre identifiant"
-                    [disabled]="loading"
-                    class="w-full rounded-lg border px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:ring-4 disabled:cursor-not-allowed disabled:bg-slate-100"
-                    [ngClass]="isControlInvalid(loginForm, 'identifier') ? 'border-red-400 focus:border-red-400 focus:ring-red-100' : 'border-slate-300 focus:border-indigo-500 focus:ring-indigo-100'" />
-                <small class="mt-1 block text-xs text-red-600" *ngIf="isControlInvalid(loginForm, 'identifier')">
-                    L'identifiant est requis (min 3 caracteres)
-                </small>
-            </div>
-
-            <div class="space-y-1">
-                <label for="login-password" class="mb-1 block text-sm font-medium text-slate-700">Mot de passe</label>
-                <input
-                    type="password"
-                    id="login-password"
-                    formControlName="password"
-                    placeholder="Entrez votre mot de passe"
-                    [disabled]="loading"
-                    class="w-full rounded-lg border px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:ring-4 disabled:cursor-not-allowed disabled:bg-slate-100"
-                    [ngClass]="isControlInvalid(loginForm, 'password') ? 'border-red-400 focus:border-red-400 focus:ring-red-100' : 'border-slate-300 focus:border-indigo-500 focus:ring-indigo-100'" />
-                <small class="mt-1 block text-xs text-red-600" *ngIf="isControlInvalid(loginForm, 'password')">
-                    Le mot de passe est requis (min 6 caracteres)
-                </small>
-            </div>
-
+        <div>
+          <label for="login-password" class="mb-1 block text-sm font-medium text-[#8fa3bf]">Mot de passe</label>
+          <div class="relative">
+            <input
+              id="login-password"
+              [type]="showLoginPassword ? 'text' : 'password'"
+              formControlName="password"
+              placeholder="Votre mot de passe"
+              [disabled]="loading"
+              class="wsd-input px-4 py-3 pr-12 text-sm"
+              [ngClass]="isControlInvalid(loginForm, 'password') ? 'border-[#ef4444] focus:ring-[#ef4444]/20' : ''" />
             <button
-                type="submit"
-                [disabled]="loading"
-                class="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-indigo-700 hover:shadow disabled:cursor-not-allowed disabled:opacity-70">
-                <span *ngIf="!loading">Connexion</span>
-                <span *ngIf="loading" class="inline-flex items-center gap-2">
-                    <span class="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white"></span>
-                    Connexion en cours...
-                </span>
+              type="button"
+              (click)="toggleLoginPasswordVisibility()"
+              [disabled]="loading"
+              class="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1.5 text-[#8fa3bf] transition hover:bg-white/5 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+              [attr.aria-label]="showLoginPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
+              [attr.aria-pressed]="showLoginPassword">
+              <ng-container *ngIf="showLoginPassword; else eyeOffTemplate">
+                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3.98 8.223A10.5 10.5 0 0 1 12 4.5c4.5 0 8.41 2.67 10.02 6.723a1.5 1.5 0 0 1 0 1.554A10.5 10.5 0 0 1 12 19.5c-4.5 0-8.41-2.67-10.02-6.723a1.5 1.5 0 0 1 0-1.554Z" stroke-linecap="round" stroke-linejoin="round" />
+                  <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </ng-container>
+              <ng-template #eyeOffTemplate>
+                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M10.733 5.08A10.58 10.58 0 0 1 12 4.5c4.5 0 8.41 2.67 10.02 6.723a1.5 1.5 0 0 1 0 1.554 10.54 10.54 0 0 1-4.763 5.03M6.72 6.72A10.47 10.47 0 0 0 1.98 11.723a1.5 1.5 0 0 0 0 1.554A10.5 10.5 0 0 0 12 19.5c1.67 0 3.26-.39 4.66-1.1" stroke-linecap="round" stroke-linejoin="round" />
+                  <path d="M3 3l18 18" stroke-linecap="round" />
+                  <path d="M9.88 9.88a3 3 0 0 0 4.24 4.24" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </ng-template>
             </button>
-        </form>
+          </div>
+          <small class="mt-1 block text-xs text-[#fca5a5]" *ngIf="isControlInvalid(loginForm, 'password')">
+            Le mot de passe est requis (min 6 caractères)
+          </small>
+        </div>
 
-        <form *ngIf="!isLoginMode" [formGroup]="registerForm" (ngSubmit)="onRegisterSubmit()" class="space-y-4">
-            <div class="space-y-1">
-                <label for="register-name" class="mb-1 block text-sm font-medium text-slate-700">Nom</label>
-                <input
-                    type="text"
-                    id="register-name"
-                    formControlName="name"
-                    placeholder="Entrez votre nom"
-                    [disabled]="loading"
-                    class="w-full rounded-lg border px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:ring-4 disabled:cursor-not-allowed disabled:bg-slate-100"
-                    [ngClass]="isControlInvalid(registerForm, 'name') ? 'border-red-400 focus:border-red-400 focus:ring-red-100' : 'border-slate-300 focus:border-indigo-500 focus:ring-indigo-100'" />
-                <small class="mt-1 block text-xs text-red-600" *ngIf="isControlInvalid(registerForm, 'name')">
-                    Le nom est requis (min 2 caracteres)
-                </small>
-            </div>
+        <button type="submit" [disabled]="loading" class="wsd-btn-primary mt-3 inline-flex w-full items-center justify-center gap-2 px-4 py-3 text-sm disabled:cursor-not-allowed disabled:opacity-60">
+          <span *ngIf="!loading">Se connecter</span>
+          <span *ngIf="loading" class="inline-flex items-center gap-2">
+            <span class="h-4 w-4 animate-spin rounded-full border-2 border-white/35 border-t-white"></span>
+            Connexion...
+          </span>
+        </button>
+      </form>
 
-            <div class="space-y-1">
-                <label for="register-siret" class="mb-1 block text-sm font-medium text-slate-700">Numero SIRET</label>
-                <input
-                    type="text"
-                    id="register-siret"
-                    formControlName="siret"
-                    placeholder="Entrez votre numero SIRET (14 chiffres)"
-                    [disabled]="loading"
-                    class="w-full rounded-lg border px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:ring-4 disabled:cursor-not-allowed disabled:bg-slate-100"
-                    [ngClass]="isControlInvalid(registerForm, 'siret') ? 'border-red-400 focus:border-red-400 focus:ring-red-100' : 'border-slate-300 focus:border-indigo-500 focus:ring-indigo-100'" />
-                <small class="mt-1 block text-xs text-red-600" *ngIf="isControlInvalid(registerForm, 'siret') && registerForm.get('siret')?.hasError('required')">
-                    Le SIRET est obligatoire
-                </small>
-                <small class="mt-1 block text-xs text-red-600" *ngIf="isControlInvalid(registerForm, 'siret') && !registerForm.get('siret')?.hasError('required') && registerForm.get('siret')?.hasError('pattern')">
-                    Le SIRET doit contenir exactement 14 chiffres
-                </small>
-            </div>
+      <form *ngIf="!isLoginMode" [formGroup]="registerForm" (ngSubmit)="onRegisterSubmit()" class="space-y-4">
+        <div>
+          <label for="register-name" class="mb-1 block text-sm font-medium text-[#8fa3bf]">Nom</label>
+          <input id="register-name" type="text" formControlName="name" [disabled]="loading" class="wsd-input px-4 py-3 text-sm" />
+        </div>
 
-            <div class="space-y-1">
-                <label for="register-city" class="mb-1 block text-sm font-medium text-slate-700">Ville</label>
-                <input
-                    type="text"
-                    id="register-city"
-                    formControlName="city"
-                    placeholder="Entrez votre ville"
-                    [disabled]="loading"
-                    class="w-full rounded-lg border px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:ring-4 disabled:cursor-not-allowed disabled:bg-slate-100"
-                    [ngClass]="isControlInvalid(registerForm, 'city') ? 'border-red-400 focus:border-red-400 focus:ring-red-100' : 'border-slate-300 focus:border-indigo-500 focus:ring-indigo-100'" />
-                <small class="mt-1 block text-xs text-red-600" *ngIf="isControlInvalid(registerForm, 'city')">
-                    La ville est requise (min 2 caracteres)
-                </small>
-            </div>
+        <div>
+          <label for="register-siret" class="mb-1 block text-sm font-medium text-[#8fa3bf]">Numero SIRET</label>
+          <input id="register-siret" type="text" formControlName="siret" [disabled]="loading" class="wsd-input px-4 py-3 text-sm" />
+        </div>
 
-            <div class="space-y-1">
-                <label for="register-identifier" class="mb-1 block text-sm font-medium text-slate-700">Identifiant</label>
-                <input
-                    type="text"
-                    id="register-identifier"
-                    formControlName="identifier"
-                    placeholder="Creez votre identifiant"
-                    [disabled]="loading"
-                    class="w-full rounded-lg border px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:ring-4 disabled:cursor-not-allowed disabled:bg-slate-100"
-                    [ngClass]="isControlInvalid(registerForm, 'identifier') ? 'border-red-400 focus:border-red-400 focus:ring-red-100' : 'border-slate-300 focus:border-indigo-500 focus:ring-indigo-100'" />
-                <small class="mt-1 block text-xs text-red-600" *ngIf="isControlInvalid(registerForm, 'identifier')">
-                    L'identifiant est requis (min 3 caracteres)
-                </small>
-            </div>
+        <div>
+          <label for="register-city" class="mb-1 block text-sm font-medium text-[#8fa3bf]">Ville</label>
+          <input id="register-city" type="text" formControlName="city" [disabled]="loading" class="wsd-input px-4 py-3 text-sm" />
+        </div>
 
-            <div class="space-y-1">
-                <label for="register-password" class="mb-1 block text-sm font-medium text-slate-700">Mot de passe</label>
-                <input
-                    type="password"
-                    id="register-password"
-                    formControlName="password"
-                    placeholder="Creez votre mot de passe"
-                    [disabled]="loading"
-                    class="w-full rounded-lg border px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:ring-4 disabled:cursor-not-allowed disabled:bg-slate-100"
-                    [ngClass]="isControlInvalid(registerForm, 'password') ? 'border-red-400 focus:border-red-400 focus:ring-red-100' : 'border-slate-300 focus:border-indigo-500 focus:ring-indigo-100'" />
-                <small class="mt-1 block text-xs text-red-600" *ngIf="isControlInvalid(registerForm, 'password')">
-                    Le mot de passe est requis (min 6 caracteres)
-                </small>
-            </div>
+        <div>
+          <label for="register-identifier" class="mb-1 block text-sm font-medium text-[#8fa3bf]">Identifiant</label>
+          <input id="register-identifier" type="text" formControlName="identifier" [disabled]="loading" class="wsd-input px-4 py-3 text-sm" />
+        </div>
 
-            <div class="space-y-1">
-                <label for="register-confirm-password" class="mb-1 block text-sm font-medium text-slate-700">Confirmer le mot de passe</label>
-                <input
-                    type="password"
-                    id="register-confirm-password"
-                    formControlName="confirmPassword"
-                    placeholder="Confirmez votre mot de passe"
-                    [disabled]="loading"
-                    class="w-full rounded-lg border px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:ring-4 disabled:cursor-not-allowed disabled:bg-slate-100"
-                    [ngClass]="isControlInvalid(registerForm, 'confirmPassword') ? 'border-red-400 focus:border-red-400 focus:ring-red-100' : 'border-slate-300 focus:border-indigo-500 focus:ring-indigo-100'" />
-                <small class="mt-1 block text-xs text-red-600" *ngIf="isControlInvalid(registerForm, 'confirmPassword')">
-                    La confirmation du mot de passe est requise
-                </small>
-            </div>
-
+        <div>
+          <label for="register-password" class="mb-1 block text-sm font-medium text-[#8fa3bf]">Mot de passe</label>
+          <div class="relative">
+            <input
+              id="register-password"
+              [type]="showRegisterPassword ? 'text' : 'password'"
+              formControlName="password"
+              [disabled]="loading"
+              class="wsd-input px-4 py-3 pr-12 text-sm" />
             <button
-                type="submit"
-                [disabled]="loading"
-                class="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-indigo-700 hover:shadow disabled:cursor-not-allowed disabled:opacity-70">
-                <span *ngIf="!loading">S'inscrire</span>
-                <span *ngIf="loading" class="inline-flex items-center gap-2">
-                    <span class="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white"></span>
-                    Inscription en cours...
-                </span>
+              type="button"
+              (click)="toggleRegisterPasswordVisibility()"
+              [disabled]="loading"
+              class="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1.5 text-[#8fa3bf] transition hover:bg-white/5 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+              [attr.aria-label]="showRegisterPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
+              [attr.aria-pressed]="showRegisterPassword">
+              <ng-container *ngIf="showRegisterPassword; else eyeOffTemplate">
+                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3.98 8.223A10.5 10.5 0 0 1 12 4.5c4.5 0 8.41 2.67 10.02 6.723a1.5 1.5 0 0 1 0 1.554A10.5 10.5 0 0 1 12 19.5c-4.5 0-8.41-2.67-10.02-6.723a1.5 1.5 0 0 1 0-1.554Z" stroke-linecap="round" stroke-linejoin="round" />
+                  <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </ng-container>
+              <ng-template #eyeOffTemplate>
+                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M10.733 5.08A10.58 10.58 0 0 1 12 4.5c4.5 0 8.41 2.67 10.02 6.723a1.5 1.5 0 0 1 0 1.554 10.54 10.54 0 0 1-4.763 5.03M6.72 6.72A10.47 10.47 0 0 0 1.98 11.723a1.5 1.5 0 0 0 0 1.554A10.5 10.5 0 0 0 12 19.5c1.67 0 3.26-.39 4.66-1.1" stroke-linecap="round" stroke-linejoin="round" />
+                  <path d="M3 3l18 18" stroke-linecap="round" />
+                  <path d="M9.88 9.88a3 3 0 0 0 4.24 4.24" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </ng-template>
             </button>
-        </form>
+          </div>
+        </div>
 
-        <p class="mt-6 border-t border-slate-200 pt-5 text-center text-sm text-slate-600">
-            {{ isLoginMode ? 'Pas encore de compte ?' : 'Vous avez deja un compte ?' }}
+        <div>
+          <label for="register-confirm-password" class="mb-1 block text-sm font-medium text-[#8fa3bf]">Confirmer le mot de passe</label>
+          <div class="relative">
+            <input
+              id="register-confirm-password"
+              [type]="showRegisterConfirmPassword ? 'text' : 'password'"
+              formControlName="confirmPassword"
+              [disabled]="loading"
+              class="wsd-input px-4 py-3 pr-12 text-sm" />
             <button
-                type="button"
-                (click)="toggleMode()"
-                [disabled]="loading"
-                class="ml-1 font-semibold text-indigo-600 underline underline-offset-2 hover:text-indigo-700 disabled:cursor-not-allowed disabled:opacity-70">
-                {{ isLoginMode ? 'Creer un compte' : 'Connectez-vous' }}
+              type="button"
+              (click)="toggleRegisterConfirmPasswordVisibility()"
+              [disabled]="loading"
+              class="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1.5 text-[#8fa3bf] transition hover:bg-white/5 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+              [attr.aria-label]="showRegisterConfirmPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
+              [attr.aria-pressed]="showRegisterConfirmPassword">
+              <ng-container *ngIf="showRegisterConfirmPassword; else eyeOffTemplate">
+                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3.98 8.223A10.5 10.5 0 0 1 12 4.5c4.5 0 8.41 2.67 10.02 6.723a1.5 1.5 0 0 1 0 1.554A10.5 10.5 0 0 1 12 19.5c-4.5 0-8.41-2.67-10.02-6.723a1.5 1.5 0 0 1 0-1.554Z" stroke-linecap="round" stroke-linejoin="round" />
+                  <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </ng-container>
+              <ng-template #eyeOffTemplate>
+                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M10.733 5.08A10.58 10.58 0 0 1 12 4.5c4.5 0 8.41 2.67 10.02 6.723a1.5 1.5 0 0 1 0 1.554 10.54 10.54 0 0 1-4.763 5.03M6.72 6.72A10.47 10.47 0 0 0 1.98 11.723a1.5 1.5 0 0 0 0 1.554A10.5 10.5 0 0 0 12 19.5c1.67 0 3.26-.39 4.66-1.1" stroke-linecap="round" stroke-linejoin="round" />
+                  <path d="M3 3l18 18" stroke-linecap="round" />
+                  <path d="M9.88 9.88a3 3 0 0 0 4.24 4.24" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </ng-template>
             </button>
-        </p>
+          </div>
+        </div>
+
+        <button type="submit" [disabled]="loading" class="wsd-btn-primary mt-3 inline-flex w-full items-center justify-center gap-2 px-4 py-3 text-sm disabled:cursor-not-allowed disabled:opacity-60">
+          <span *ngIf="!loading">S'inscrire</span>
+          <span *ngIf="loading" class="inline-flex items-center gap-2">
+            <span class="h-4 w-4 animate-spin rounded-full border-2 border-white/35 border-t-white"></span>
+            Inscription...
+          </span>
+        </button>
+      </form>
+
+      <p class="mt-6 text-center text-sm text-[#5a7094]">
+        {{ isLoginMode ? 'Pas encore de compte ?' : 'Vous avez déjà un compte ?' }}
+        <button type="button" (click)="toggleMode()" [disabled]="loading" class="ml-1 font-semibold text-[#ff6b35] hover:text-[#ff8a5f] disabled:opacity-70">
+          {{ isLoginMode ? 'Créer un compte' : 'Se connecter' }}
+        </button>
+      </p>
+
+      <p class="mt-5 text-center text-xs text-[#5a7094]/80">v1.0.0 · Espace Client</p>
     </div>
+  </div>
 </div>
+

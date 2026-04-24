@@ -12,6 +12,9 @@ import { AuthService } from '../services/auth.service';
 })
 export class Login {
     isLoginMode = true;
+    showLoginPassword = false;
+    showRegisterPassword = false;
+    showRegisterConfirmPassword = false;
     loginForm!: FormGroup;
     registerForm!: FormGroup;
     submitted = false;
@@ -54,6 +57,21 @@ export class Login {
         this.isLoginMode = !this.isLoginMode;
         this.submitted = false;
         this.errorMessage = null;
+        this.showLoginPassword = false;
+        this.showRegisterPassword = false;
+        this.showRegisterConfirmPassword = false;
+    }
+
+    toggleLoginPasswordVisibility() {
+        this.showLoginPassword = !this.showLoginPassword;
+    }
+
+    toggleRegisterPasswordVisibility() {
+        this.showRegisterPassword = !this.showRegisterPassword;
+    }
+
+    toggleRegisterConfirmPasswordVisibility() {
+        this.showRegisterConfirmPassword = !this.showRegisterConfirmPassword;
     }
 
     onLoginSubmit() {

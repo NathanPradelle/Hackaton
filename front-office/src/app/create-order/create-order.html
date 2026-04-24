@@ -1,80 +1,66 @@
-<div class="min-h-screen bg-slate-100 px-4 py-10">
-  <div class="mx-auto max-w-2xl">
+<div class="wsd-page">
+  <div class="mx-auto w-full max-w-3xl space-y-5">
+    <button (click)="goBack()" class="inline-flex items-center gap-2 text-sm font-medium text-[#8fa3bf] transition hover:text-white">
+      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Retour à l'accueil
+    </button>
 
-    <div class="mb-4">
-      <button (click)="goBack()" class="inline-flex items-center gap-2 text-sm font-medium text-slate-600 transition hover:text-slate-900">
-        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Retour à l'accueil
-      </button>
-    </div>
-
-    <div class="mb-6 rounded-2xl bg-gradient-to-r from-indigo-600 via-violet-600 to-purple-600 p-6 text-white shadow-lg">
-      <h1 class="text-2xl font-bold tracking-tight">Passer une commande</h1>
-      <p class="mt-1 text-sm text-indigo-100">
-        {{ step() === 'form' ? 'Remplissez le formulaire pour obtenir un prix estimé.' : 'Vérifiez le détail du prix avant de confirmer.' }}
+    <div class="wsd-panel p-6">
+      <h1 class="text-2xl font-bold text-white">Passer une commande</h1>
+      <p class="mt-2 text-sm text-[#8fa3bf]">
+        {{ step() === 'form' ? 'Saisissez les informations pour simuler votre prix.' : 'Vérifiez les détails puis confirmez la commande.' }}
       </p>
     </div>
 
     @if (step() === 'form') {
-      <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 sm:p-8">
+      <div class="wsd-panel p-6 sm:p-7">
         <form [formGroup]="orderForm" (ngSubmit)="simulatePrice()" class="grid gap-5 sm:grid-cols-2">
-
-          <div class="space-y-1 sm:col-span-2">
-            <label class="block text-sm font-medium text-slate-700">Adresse de livraison</label>
-            <input type="text" formControlName="address"
-              placeholder="Ex : 120 Avenue des Champs-Élysées, 75008 Paris"
-              class="w-full rounded-lg border py-2.5 px-3 text-sm outline-none transition focus:ring-4"
-              [ngClass]="isControlInvalid('address') ? 'border-red-400 focus:ring-red-100' : 'border-slate-300 focus:border-indigo-500 focus:ring-indigo-100'" />
+          <div class="sm:col-span-2">
+            <label class="mb-1 block text-sm font-medium text-[#8fa3bf]">Adresse de livraison</label>
+            <input type="text" formControlName="address" class="wsd-input px-4 py-3 text-sm"
+              placeholder="Ex : 120 Avenue des Champs-Elysees, 75008 Paris" />
             @if (isControlInvalid('address')) {
-              <small class="text-xs text-red-600">L'adresse est obligatoire (min 5 caractères).</small>
+              <small class="mt-1 block text-xs text-[#fca5a5]">L'adresse est obligatoire (min 5 caractères).</small>
             }
           </div>
 
-          <div class="space-y-1">
-            <label class="block text-sm font-medium text-slate-700">Date souhaitée</label>
-            <input type="date" formControlName="requestedDate"
-              class="w-full rounded-lg border py-2.5 px-3 text-sm outline-none transition focus:ring-4"
-              [ngClass]="isControlInvalid('requestedDate') ? 'border-red-400 focus:ring-red-100' : 'border-slate-300 focus:border-indigo-500 focus:ring-indigo-100'" />
+          <div>
+            <label class="mb-1 block text-sm font-medium text-[#8fa3bf]">Date souhaitée</label>
+            <input type="date" formControlName="requestedDate" class="wsd-input px-4 py-3 text-sm" />
             @if (isControlInvalid('requestedDate')) {
-              <small class="text-xs text-red-600">La date est obligatoire.</small>
+              <small class="mt-1 block text-xs text-[#fca5a5]">La date est obligatoire.</small>
             }
           </div>
 
-          <div class="space-y-1">
-            <label class="block text-sm font-medium text-slate-700">Plage horaire</label>
-            <select formControlName="timeSlot"
-              class="w-full rounded-lg border bg-white py-2.5 px-3 text-sm outline-none transition focus:ring-4"
-              [ngClass]="isControlInvalid('timeSlot') ? 'border-red-400 focus:ring-red-100' : 'border-slate-300 focus:border-indigo-500 focus:ring-indigo-100'">
+          <div>
+            <label class="mb-1 block text-sm font-medium text-[#8fa3bf]">Plage horaire</label>
+            <select formControlName="timeSlot" class="wsd-input px-4 py-3 text-sm">
               <option value="" disabled>Choisir une plage</option>
-              <option value="08:00-10:00">08:00 – 10:00</option>
-              <option value="10:00-12:00">10:00 – 12:00</option>
-              <option value="14:00-16:00">14:00 – 16:00</option>
-              <option value="16:00-18:00">16:00 – 18:00</option>
+              <option value="08:00-10:00">08:00 - 10:00</option>
+              <option value="10:00-12:00">10:00 - 12:00</option>
+              <option value="14:00-16:00">14:00 - 16:00</option>
+              <option value="16:00-18:00">16:00 - 18:00</option>
             </select>
             @if (isControlInvalid('timeSlot')) {
-              <small class="text-xs text-red-600">La plage horaire est obligatoire.</small>
-            }
-          </div>
-
-          <div class="space-y-1 sm:col-span-2">
-            <label class="block text-sm font-medium text-slate-700">Nombre de cartons</label>
-            <input type="number" min="1" formControlName="quantity"
-              class="w-full rounded-lg border py-2.5 px-3 text-sm outline-none transition focus:ring-4"
-              [ngClass]="isControlInvalid('quantity') ? 'border-red-400 focus:ring-red-100' : 'border-slate-300 focus:border-indigo-500 focus:ring-indigo-100'" />
-            @if (isControlInvalid('quantity')) {
-              <small class="text-xs text-red-600">Quantité minimale : 1 carton.</small>
+              <small class="mt-1 block text-xs text-[#fca5a5]">La plage horaire est obligatoire.</small>
             }
           </div>
 
           <div class="sm:col-span-2">
-            <button type="submit" [disabled]="loading()"
-              class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 disabled:opacity-60">
+            <label class="mb-1 block text-sm font-medium text-[#8fa3bf]">Nombre de cartons</label>
+            <input type="number" min="1" formControlName="quantity" class="wsd-input px-4 py-3 text-sm" />
+            @if (isControlInvalid('quantity')) {
+              <small class="mt-1 block text-xs text-[#fca5a5]">Quantité minimale: 1 carton.</small>
+            }
+          </div>
+
+          <div class="sm:col-span-2">
+            <button type="submit" [disabled]="loading()" class="wsd-btn-primary inline-flex w-full items-center justify-center gap-2 px-4 py-3 text-sm disabled:cursor-not-allowed disabled:opacity-60">
               @if (loading()) {
-                <span class="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white"></span>
-                Calcul en cours...
+                <span class="h-4 w-4 animate-spin rounded-full border-2 border-white/35 border-t-white"></span>
+                Simulation...
               } @else {
-                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 7H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2v-3"/><path d="M12 3h6v6"/><path d="m15 3 6 6"/></svg>
-                Calculer le prix estimé
+                Calculer le prix estime
               }
             </button>
           </div>
@@ -84,89 +70,57 @@
 
     @if (step() === 'confirm' && breakdown()) {
       <div class="space-y-4">
-
-        <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-          <h2 class="mb-3 text-base font-semibold text-slate-800">Récapitulatif de votre commande</h2>
-          <div class="grid gap-1 text-sm text-slate-600 sm:grid-cols-2">
-            <span class="font-medium text-slate-700">Adresse :</span>
-            <span>{{ orderForm.value.address }}</span>
-            <span class="font-medium text-slate-700">Date :</span>
-            <span>{{ orderForm.value.requestedDate }}</span>
-            <span class="font-medium text-slate-700">Plage horaire :</span>
-            <span>{{ orderForm.value.timeSlot }}</span>
-            <span class="font-medium text-slate-700">Quantité :</span>
-            <span>{{ orderForm.value.quantity }} carton(s)</span>
-            <span class="font-medium text-slate-700">Distance estimée :</span>
-            <span>{{ breakdown()!.distanceKm }} km</span>
+        <div class="wsd-panel p-6">
+          <h2 class="text-base font-semibold text-white">Recapitulatif</h2>
+          <div class="mt-4 grid gap-2 text-sm text-[#8fa3bf] sm:grid-cols-2">
+            <span>Adresse</span><span class="text-white">{{ orderForm.value.address }}</span>
+            <span>Date</span><span class="text-white">{{ orderForm.value.requestedDate }}</span>
+            <span>Plage</span><span class="text-white">{{ orderForm.value.timeSlot }}</span>
+            <span>Cartons</span><span class="text-white">{{ orderForm.value.quantity }}</span>
+            <span>Distance estimée</span><span class="text-white">{{ breakdown()!.distanceKm }} km</span>
           </div>
         </div>
 
-        <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-          <h2 class="mb-4 text-base font-semibold text-slate-800">Détail du prix</h2>
-          <div class="space-y-2 text-sm">
-            <div class="flex justify-between text-slate-600">
-              <span>Carburant</span>
-              <span>{{ breakdown()!.coutCarburant | currency:'EUR':'symbol':'1.2-2' }}</span>
-            </div>
-            <div class="flex justify-between text-slate-600">
-              <span>Part salariale chauffeur</span>
-              <span>{{ breakdown()!.partSalariale | currency:'EUR':'symbol':'1.2-2' }}</span>
-            </div>
-            <div class="flex justify-between text-slate-600">
-              <span>Usure & entretien véhicule</span>
-              <span>{{ breakdown()!.usureCamion | currency:'EUR':'symbol':'1.2-2' }}</span>
-            </div>
-            <div class="flex justify-between text-slate-600">
-              <span>Badge télépéage</span>
-              <span>{{ breakdown()!.badgeTelepeage | currency:'EUR':'symbol':'1.2-2' }}</span>
-            </div>
-            <div class="flex justify-between text-slate-600">
-              <span>Frais de livraison</span>
-              <span>{{ breakdown()!.fraisLivraison | currency:'EUR':'symbol':'1.2-2' }}</span>
-            </div>
-            <div class="mt-2 flex justify-between border-t pt-2 text-slate-700">
-              <span>Sous-total</span>
-              <span>{{ breakdown()!.sousTotal | currency:'EUR':'symbol':'1.2-2' }}</span>
-            </div>
-            <div class="flex justify-between text-slate-600">
-              <span>Marge entreprise (20 %)</span>
-              <span>{{ breakdown()!.marge | currency:'EUR':'symbol':'1.2-2' }}</span>
-            </div>
-            <div class="mt-2 flex justify-between rounded-lg bg-indigo-50 px-3 py-2 text-base font-bold text-indigo-700 ring-1 ring-indigo-200">
-              <span>Total TTC</span>
-              <span>{{ breakdown()!.prixTotal | currency:'EUR':'symbol':'1.2-2' }}</span>
+        <div class="wsd-panel overflow-hidden">
+          <div class="h-1 w-full bg-[#ff6b35]"></div>
+          <div class="p-6">
+            <h2 class="text-base font-semibold text-white">Detail du prix</h2>
+            <div class="mt-4 space-y-2 text-sm text-[#8fa3bf]">
+              <div class="flex justify-between"><span>Carburant</span><span>{{ breakdown()!.coutCarburant | currency:'EUR':'symbol':'1.2-2' }}</span></div>
+              <div class="flex justify-between"><span>Part salariale</span><span>{{ breakdown()!.partSalariale | currency:'EUR':'symbol':'1.2-2' }}</span></div>
+              <div class="flex justify-between"><span>Usure camion</span><span>{{ breakdown()!.usureCamion | currency:'EUR':'symbol':'1.2-2' }}</span></div>
+              <div class="flex justify-between"><span>Badge télépéage</span><span>{{ breakdown()!.badgeTelepeage | currency:'EUR':'symbol':'1.2-2' }}</span></div>
+              <div class="flex justify-between"><span>Frais de livraison</span><span>{{ breakdown()!.fraisLivraison | currency:'EUR':'symbol':'1.2-2' }}</span></div>
+              <div class="mt-3 flex justify-between border-t border-[#2a3f5a] pt-3 text-white"><span>Sous-total</span><span>{{ breakdown()!.sousTotal | currency:'EUR':'symbol':'1.2-2' }}</span></div>
+              <div class="flex justify-between"><span>Marge entreprise</span><span>{{ breakdown()!.marge | currency:'EUR':'symbol':'1.2-2' }}</span></div>
+              <div class="mt-2 flex justify-between rounded-xl border border-[#ff6b35]/45 bg-[#ff6b35]/15 px-3 py-2 font-bold text-[#ffb49b]"><span>Total TTC</span><span>{{ breakdown()!.prixTotal | currency:'EUR':'symbol':'1.2-2' }}</span></div>
             </div>
           </div>
         </div>
 
-        <div class="flex gap-3">
-          <button (click)="backToForm()" [disabled]="loading()"
-            class="flex-1 rounded-lg border border-slate-300 bg-white py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:opacity-60">
+        <div class="grid gap-3 sm:grid-cols-2">
+          <button (click)="backToForm()" [disabled]="loading()" class="rounded-xl border border-[#2a3f5a] bg-[#1a2735] py-3 text-sm font-medium text-[#8fa3bf] hover:text-white disabled:opacity-60">
             Modifier
           </button>
-          <button (click)="confirmOrder()" [disabled]="loading()"
-            class="flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-600 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 disabled:opacity-60">
+          <button (click)="confirmOrder()" [disabled]="loading()" class="wsd-btn-primary inline-flex items-center justify-center gap-2 py-3 text-sm disabled:opacity-60">
             @if (loading()) {
-              <span class="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white"></span>
-              Enregistrement...
+              <span class="h-4 w-4 animate-spin rounded-full border-2 border-white/35 border-t-white"></span>
+              Validation...
             } @else {
               Confirmer la commande
             }
           </button>
         </div>
-
       </div>
     }
-
   </div>
 
-  <div class="fixed right-4 top-4 z-50 flex w-80 flex-col gap-3">
+  <div class="fixed right-4 top-4 z-50 flex w-80 max-w-[calc(100vw-2rem)] flex-col gap-3">
     @for (toast of toasts(); track toast.id) {
-      <div class="rounded-xl border bg-white p-4 shadow-lg"
-        [ngClass]="{ 'border-emerald-200': toast.type === 'success', 'border-red-200': toast.type === 'error', 'border-slate-200': toast.type === 'info' }">
+      <div class="wsd-panel p-4">
         <div class="flex items-start gap-3">
           <div class="mt-0.5 rounded-full p-1"
-            [ngClass]="{ 'bg-emerald-100 text-emerald-700': toast.type === 'success', 'bg-red-100 text-red-700': toast.type === 'error', 'bg-slate-100 text-slate-700': toast.type === 'info' }">
+            [ngClass]="{ 'bg-emerald-500/20 text-emerald-400': toast.type === 'success', 'bg-red-500/20 text-red-400': toast.type === 'error', 'bg-slate-500/20 text-slate-300': toast.type === 'info' }">
             @if (toast.type === 'success') {
               <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 5 5L20 7"/></svg>
             } @else {
@@ -174,10 +128,10 @@
             }
           </div>
           <div class="flex-1">
-            <p class="text-sm font-semibold text-slate-800">{{ toast.title }}</p>
-            <p class="mt-1 text-xs text-slate-600">{{ toast.message }}</p>
+            <p class="text-sm font-semibold text-white">{{ toast.title }}</p>
+            <p class="mt-1 text-xs text-[#8fa3bf]">{{ toast.message }}</p>
           </div>
-          <button (click)="removeToast(toast.id)" class="text-slate-400 hover:text-slate-600">
+          <button (click)="removeToast(toast.id)" class="text-[#5a7094] hover:text-white">
             <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 6 12 12M18 6 6 18"/></svg>
           </button>
         </div>
