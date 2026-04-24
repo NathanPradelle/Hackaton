@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../../../../shared/enums/enums.dart';
 import '../../../planning/domain/models/tournee.dart';
 
 void showTripDetailSheet(BuildContext context, Tournee tournee) {

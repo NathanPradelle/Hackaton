@@ -42,13 +42,6 @@ class _PlanningPageState extends State<PlanningPage> {
 
   @override
   Widget build(BuildContext context) {
-    // On a besoin du driverId — on le récupère via le currentUser
-    // Le ProfileBloc charge le chauffeur, mais ici on a besoin de l'id driver
-    // Pour simplifier, on passe le userId et le bloc filtre par chauffeurId
-    // Note: chauffeurId != userId — il faut d'abord résoudre le chauffeur
-    // On stocke le driverId dans ApiService après le profil load
-    // Pour l'instant on utilise une approche simple : le bloc charge tout et filtre
-
     return BlocProvider(
         create: (_) {
           final driverId = ApiService().driverId ?? 0;

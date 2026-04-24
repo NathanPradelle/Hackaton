@@ -43,7 +43,6 @@ class ProfilePage extends StatelessWidget {
               return SingleChildScrollView(
                 padding: const EdgeInsets.all(20),
                 child: Column(children: [
-                  // Avatar
                   Container(
                     width: 88, height: 88,
                     decoration: BoxDecoration(color: AppTheme.primaryLight, borderRadius: BorderRadius.circular(22)),
