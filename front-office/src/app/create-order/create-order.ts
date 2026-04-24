@@ -4,6 +4,7 @@ import { Component, OnDestroy, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
+import { computeMinTomorrowDate, tomorrowOrLaterValidator } from '../utils/date-order.utils';
 
 interface PriceBreakdown {
   distanceKm: number;
@@ -29,6 +30,7 @@ interface ToastMessage { id: number; type: ToastType; title: string; message: st
 export class CreateOrder implements OnDestroy {
   orderForm: FormGroup;
   submitted = false;
+  minTomorrowDate = computeMinTomorrowDate();
 
   loading   = signal(false);
   step      = signal<'form' | 'confirm'>('form');
@@ -48,11 +50,12 @@ export class CreateOrder implements OnDestroy {
   ) {
     this.orderForm = this.fb.group({
       address:       ['', [Validators.required, Validators.minLength(5)]],
-      requestedDate: ['', [Validators.required]],
+      requestedDate: ['', [Validators.required, tomorrowOrLaterValidator(this.minTomorrowDate)]],
       timeSlot:      ['', [Validators.required]],
       quantity:      [1,  [Validators.required, Validators.min(1)]],
     });
   }
+
 
   isControlInvalid(name: string): boolean {
     const c = this.orderForm.get(name);
@@ -64,6 +67,12 @@ export class CreateOrder implements OnDestroy {
     if (this.orderForm.invalid) {
       this.orderForm.markAllAsTouched();
       this.addToast('error', 'Formulaire incomplet', 'Vérifiez tous les champs avant de continuer.');
+      return;
+    }
+
+    const requestedDateControl = this.orderForm.get('requestedDate');
+    if (requestedDateControl?.hasError('beforeTomorrow')) {
+      this.addToast('error', 'Date invalide', 'La date de livraison doit être au minimum demain.');
       return;
     }
 
@@ -91,6 +100,13 @@ export class CreateOrder implements OnDestroy {
   }
 
   confirmOrder() {
+    const requestedDateControl = this.orderForm.get('requestedDate');
+    if (requestedDateControl?.hasError('beforeTomorrow')) {
+      this.addToast('error', 'Date invalide', 'La date de livraison doit être au minimum demain.');
+      this.step.set('form');
+      return;
+    }
+
     this.loading.set(true);
     const user = this.authService.getCurrentUser();
     const payload = {

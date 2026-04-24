@@ -26,9 +26,12 @@
 
           <div>
             <label class="mb-1 block text-sm font-medium text-[#8fa3bf]">Date souhaitée</label>
-            <input type="date" formControlName="requestedDate" class="wsd-input px-4 py-3 text-sm" />
-            @if (isControlInvalid('requestedDate')) {
+            <input type="date" formControlName="requestedDate" [attr.min]="minTomorrowDate" class="wsd-input px-4 py-3 text-sm" />
+            @if (isControlInvalid('requestedDate') && orderForm.get('requestedDate')?.hasError('required')) {
               <small class="mt-1 block text-xs text-[#fca5a5]">La date est obligatoire.</small>
+            }
+            @if (isControlInvalid('requestedDate') && orderForm.get('requestedDate')?.hasError('beforeTomorrow')) {
+              <small class="mt-1 block text-xs text-[#fca5a5]">Veuillez sélectionner une date ultérieure à celle d'aujourd'hui pour votre commande..</small>
             }
           </div>
 
