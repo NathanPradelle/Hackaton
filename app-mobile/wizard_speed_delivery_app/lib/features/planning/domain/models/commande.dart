@@ -8,7 +8,7 @@ class Commande {
   final double latitude;
   final double longitude;
   final DateTime dateVoulu;
-  final PlageHoraire plageHoraire;
+  final String plageHoraire;
   final double prix;
   final int quantite;
   final StatutCommande statut;
@@ -35,23 +35,9 @@ class Commande {
     latitude: (json['latitude'] as num).toDouble(),
     longitude: (json['longitude'] as num).toDouble(),
     dateVoulu: DateTime.parse(json['dateVoulu']),
-    plageHoraire: PlageHoraire.values.byName(json['plageHoraire']),
+    plageHoraire:json['plageHoraire'] ?? '',
     prix: (json['prix'] as num).toDouble(),
     quantite: json['quantite'],
     statut: StatutCommande.values.byName(json['statut']),
   );
-
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'clientId': clientId,
-    'tourneeId': tourneeId,
-    'adresseTexte': adresseTexte,
-    'latitude': latitude,
-    'longitude': longitude,
-    'dateVoulu': dateVoulu.toIso8601String(),
-    'plageHoraire': plageHoraire.name,
-    'prix': prix,
-    'quantite': quantite,
-    'statut': statut.name,
-  };
 }

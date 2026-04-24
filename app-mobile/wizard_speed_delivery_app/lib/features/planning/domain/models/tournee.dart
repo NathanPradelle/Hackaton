@@ -7,12 +7,14 @@ class Tournee {
   final int chauffeurId;
   final int camionId;
   final DateTime date;
-  final PlageHoraire plageHoraire;
+  final String plageHoraire;
   final StatutTournee statut;
-  final List<Commande>? commandes;
-  final Itineraire? itineraire;
 
-  const Tournee({
+  // Chargés séparément — pas dans le TripDto du back
+  List<Commande>? commandes;
+  Itineraire? itineraire;
+
+  Tournee({
     required this.id,
     required this.chauffeurId,
     required this.camionId,
@@ -30,22 +32,7 @@ class Tournee {
     chauffeurId: json['chauffeurId'],
     camionId: json['camionId'],
     date: DateTime.parse(json['date']),
-    plageHoraire: PlageHoraire.values.byName(json['plageHoraire']),
+    plageHoraire:json['plageHoraire'] ?? '',
     statut: StatutTournee.values.byName(json['statut']),
-    commandes: json['commandes'] != null
-        ? (json['commandes'] as List).map((c) => Commande.fromJson(c)).toList()
-        : null,
-    itineraire: json['itineraire'] != null
-        ? Itineraire.fromJson(json['itineraire'])
-        : null,
   );
-
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'chauffeurId': chauffeurId,
-    'camionId': camionId,
-    'date': date.toIso8601String(),
-    'plageHoraire': plageHoraire.name,
-    'statut': statut.name,
-  };
 }
