@@ -1,3 +1,92 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import 'tailwindcss';
+
+:root {
+  --wsd-primary: #1b2a4a;
+  --wsd-primary-light: #2d4a7a;
+  --wsd-accent: #ff6b35;
+  --wsd-surface: #0f1923;
+  --wsd-surface-light: #1a2735;
+  --wsd-card: #1e3048;
+  --wsd-text-primary: #ffffff;
+  --wsd-text-secondary: #8fa3bf;
+  --wsd-text-muted: #5a7094;
+  --wsd-success: #22c55e;
+  --wsd-warning: #fbbf24;
+  --wsd-error: #ef4444;
+  --wsd-divider: #2a3f5a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+  color: var(--wsd-text-primary);
+  background:
+    radial-gradient(circle at 20% 0%, #122240 0%, transparent 35%),
+    radial-gradient(circle at 100% 0%, #1b2a4a 0%, transparent 28%),
+    var(--wsd-surface);
+}
+
+.wsd-page {
+  min-height: 100vh;
+  padding: 2rem 1rem;
+}
+
+.wsd-panel {
+  border: 1px solid color-mix(in srgb, var(--wsd-divider) 80%, transparent);
+  background: color-mix(in srgb, var(--wsd-card) 92%, #0a1628 8%);
+  border-radius: 1rem;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.28);
+}
+
+.wsd-input {
+  width: 100%;
+  border-radius: 0.875rem;
+  border: 1px solid color-mix(in srgb, var(--wsd-divider) 65%, transparent);
+  background: var(--wsd-surface-light);
+  color: var(--wsd-text-primary);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.wsd-input::placeholder {
+  color: color-mix(in srgb, var(--wsd-text-muted) 80%, transparent);
+}
+
+.wsd-input:focus {
+  border-color: var(--wsd-accent);
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.2);
+}
+
+.wsd-btn-primary {
+  border-radius: 0.875rem;
+  background: var(--wsd-accent);
+  color: #fff;
+  font-weight: 700;
+  transition: transform 0.15s ease, filter 0.2s ease;
+}
+
+.wsd-btn-primary:hover {
+  filter: brightness(1.05);
+}
+
+.wsd-btn-primary:active {
+  transform: translateY(1px);
+}
+
+.wsd-badge {
+  border-radius: 999px;
+  padding: 0.25rem 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
