@@ -168,7 +168,6 @@ public class PriceSimulationService {
             curLng = nearest.getLongitude();
             remaining.remove(nearest);
         }
-        totalDist += RoutingService.haversine(curLat, curLng, depotLat, depotLng) * ROAD_FACTOR;
         return totalDist;
     }
 }

@@ -46,7 +46,7 @@ algorithm:
 
   price:
     driver-cost-per-km: 0.25   # part salariale chauffeur (€/km, ~15€/h à 60km/h)
-    wear-cost-per-km: 0.15     # usure + entretien + amortissement camion (€/km)
-    toll-cost-per-km: 0.05     # badge télépéage moyenné (€/km)
-    stop-fee: 5.0              # frais fixes par livraison (chargement/déchargement, €)
-    margin-rate: 0.20          # marge bénéfice entreprise (20 %)
+    wear-cost-per-km: 0.08     # usure + entretien + amortissement VUL (€/km)
+    toll-cost-per-km: 0.02     # badge télépéage, surtout livraisons urbaines (€/km)
+    stop-fee: 3.5              # frais fixes par livraison (chargement/déchargement, €)
+    margin-rate: 0.15          # marge bénéfice entreprise (15 %)
