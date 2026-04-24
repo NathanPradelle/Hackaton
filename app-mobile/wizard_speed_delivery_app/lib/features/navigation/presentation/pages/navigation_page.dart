@@ -327,17 +327,15 @@ class _MapViewState extends State<_MapView> {
 
   void _onMapCreated(MapboxMap mapboxMap) {
     _mapboxMap = mapboxMap;
-    _drawRoute();
   }
 
-  Future<void> _drawRoute() async {
+  Future<void> _onStyleLoaded(StyleLoadedEventData _) async {
     final map = _mapboxMap;
     if (map == null) return;
 
     final commandes = widget.tournee.commandes;
     if (commandes == null || commandes.isEmpty) return;
 
-    // Prefer GPS waypoints from itinerary when available (includes fuel stops)
     final waypoints = widget.tournee.itineraire?.parsedWaypoints;
     final routeCoords = waypoints != null && waypoints.isNotEmpty
         ? waypoints.map((w) => Position(w.lng, w.lat)).toList()
@@ -357,9 +355,7 @@ class _MapViewState extends State<_MapView> {
       );
     }
 
-    // Delivery stop markers (numbered)
-    final pointManager =
-        await map.annotations.createPointAnnotationManager();
+    final pointManager = await map.annotations.createPointAnnotationManager();
 
     // Depot marker
     if (waypoints != null && waypoints.isNotEmpty) {
@@ -370,14 +366,16 @@ class _MapViewState extends State<_MapView> {
       await pointManager.create(
         PointAnnotationOptions(
           geometry: Point(coordinates: Position(depot.lng, depot.lat)),
-          textField: '⬟',
+          textField: 'D',
           textSize: 20.0,
           textColor: AppTheme.success.value,
+          textHaloColor: Colors.black.value,
+          textHaloWidth: 1.5,
         ),
       );
     }
 
-    // Delivery markers with stop number
+    // Numbered delivery markers
     for (final (i, c) in commandes.indexed) {
       await pointManager.create(
         PointAnnotationOptions(
@@ -391,15 +389,17 @@ class _MapViewState extends State<_MapView> {
       );
     }
 
-    // Fuel stop markers from GPS data
+    // Fuel stop markers
     if (waypoints != null) {
       for (final w in waypoints.where((w) => w.type == 'carburant')) {
         await pointManager.create(
           PointAnnotationOptions(
             geometry: Point(coordinates: Position(w.lng, w.lat)),
-            textField: '⛽',
+            textField: 'F',
             textSize: 18.0,
             textColor: Colors.orange.value,
+            textHaloColor: Colors.black.value,
+            textHaloWidth: 1.5,
           ),
         );
       }
@@ -411,13 +411,12 @@ class _MapViewState extends State<_MapView> {
     if (commandes != null && commandes.isNotEmpty) {
       return Position(commandes.first.longitude, commandes.first.latitude);
     }
-    // Paris depot default
     return Position(2.3522, 48.8566);
   }
 
   @override
   Widget build(BuildContext context) {
-    return MapboxMap(
+    return MapWidget(
       styleUri: MapboxStyles.DARK,
       cameraOptions: CameraOptions(
         center: Point(coordinates: _initialCenter()),
@@ -425,6 +424,7 @@ class _MapViewState extends State<_MapView> {
         pitch: 15.0,
       ),
       onMapCreated: _onMapCreated,
+      onStyleLoadedListener: _onStyleLoaded,
     );
   }
 }
