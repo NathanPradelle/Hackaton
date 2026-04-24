@@ -4,7 +4,7 @@ class ModeleCamion {
   final int id;
   final String marque;
   final String nomModele;
-  final int capacite;
+  final double capacite;
   final double consommationEssence;
   final TypeEssence typeEssence;
   final double capaciteReservoir;
